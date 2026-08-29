@@ -1,0 +1,676 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Portal | Note2Know</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=4">
+    <style>
+        .staff-hero {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 40%, #1E40AF 100%);
+            color: white;
+            padding: 32px 30px;
+            border-radius: 24px;
+            box-shadow: 0 12px 30px rgba(30, 58, 138, 0.25);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .staff-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .staff-avatar-box {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1;
+        }
+        .staff-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            color: #FFFFFF;
+        }
+        .staff-details h1 {
+            margin: 0 0 6px 0;
+            font-size: 26px;
+            font-weight: 800;
+        }
+        .staff-details p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .badge-tag {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #F8FAFC;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge-dept {
+            background: #2563EB;
+            border-color: #3B82F6;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card-box {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .04);
+            margin-bottom: 25px;
+        }
+        .card-box h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 19px;
+            color: #0F172A;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .card-box h3 i {
+            color: #2563EB;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 13.5px;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            background: #F8FAFC;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #2563EB;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+        }
+        .btn-secondary {
+            background: #F1F5F9;
+            color: #334155;
+            border: 1px solid #CBD5E1;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+        }
+        .btn-danger {
+            background: #FEE2E2;
+            color: #DC2626;
+            border: 1px solid #FCA5A5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-danger:hover {
+            background: #DC2626;
+            color: white;
+        }
+        .subject-chip {
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        .subject-chip:hover {
+            border-color: #3B82F6;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+            transform: translateY(-1px);
+        }
+        .notes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .notes-table th, .notes-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 14px;
+        }
+        .notes-table th {
+            background: #F8FAFC;
+            font-weight: 700;
+            color: #475569;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .alert-banner {
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .alert-banner-error {
+            background: #FEF2F2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+        .alert-banner-success {
+            background: #F0FDF4;
+            color: #166534;
+            border: 1px solid #86EFAC;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
+            <h2>Note2Know</h2>
+        </div>
+
+        <a href="{% url 'staff_dashboard' %}" class="menu active">
+            <i class="fa-solid fa-chalkboard-user"></i> Staff Portal
+        </a>
+
+        <a href="{% url 'dashboard' %}" class="menu">
+            <i class="fa-solid fa-house"></i> Student View
+        </a>
+
+        <a href="{% url 'profile' %}" class="menu">
+            <i class="fa-solid fa-user"></i> My Profile
+        </a>
+
+        <a href="{% url 'assistant' %}" class="menu">
+            <i class="fa-solid fa-robot"></i> AI Assistant
+        </a>
+
+        <a href="{% url 'logout' %}" class="menu" style="color: #EF4444; margin-top: auto;">
+            <i class="fa-solid fa-right-from-bracket" style="color: #EF4444;"></i> Log Out
+        </a>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+
+            {% if messages %}
+                <div style="margin-bottom: 25px;">
+                    {% for message in messages %}
+                        <div class="alert-banner {% if message.tags == 'error' %}alert-banner-error{% else %}alert-banner-success{% endif %}">
+                            <i class="fa-solid {% if message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Staff Banner -->
+            <div class="staff-hero">
+                <div class="staff-avatar-box">
+                    <div class="staff-avatar">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="staff-details">
+                        <h1>Welcome, {{ request.user.get_full_name|default:request.user.username }}</h1>
+                        <p>
+                            <span class="badge-tag"><i class="fa-solid fa-id-badge"></i> ID: {{ request.user.username }}</span>
+                            <span class="badge-tag"><i class="fa-solid fa-briefcase"></i> {{ staff_profile.designation }}</span>
+                            {% if staff_profile.department %}
+                                <span class="badge-tag badge-dept"><i class="fa-solid fa-building"></i> {{ staff_profile.department.code }} - {{ staff_profile.department.name }}</span>
+                            {% else %}
+                                <span class="badge-tag" style="background:#E2E8F0; color:#475569;"><i class="fa-solid fa-triangle-exclamation"></i> Department Not Selected</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Layout Grid -->
+            <div class="grid-2">
+
+                <!-- 1. Staff Profile & Department Selection Card -->
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-user-gear"></i> Faculty Profile & Department</h3>
+                    <p style="color:#64748B; font-size:13.5px; margin-top:-10px; margin-bottom:20px;">
+                        Update your professional credentials and select the primary department you belong to.
+                    </p>
+
+                    <form method="POST" action="{% url 'staff_dashboard' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_profile">
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-building" style="color:#2563EB;"></i> Select Your Department *</label>
+                            <select name="department" class="form-control" required style="font-weight: 600; color: #0F172A;">
+                                <option value="">-- Choose Department --</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.id }}" {% if staff_profile.department_id == dept.id %}selected{% endif %}>
+                                        {{ dept.code }} - {{ dept.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" name="first_name" class="form-control" value="{{ request.user.first_name }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" name="last_name" class="form-control" value="{{ request.user.last_name }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Designation / Title</label>
+                            <input type="text" name="designation" class="form-control" placeholder="e.g. Assistant Professor, HOD" value="{{ staff_profile.designation }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Official Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ request.user.email }}" placeholder="faculty@college.edu">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Contact Phone (Optional)</label>
+                            <input type="text" name="phone" class="form-control" value="{{ staff_profile.phone }}" placeholder="+91 XXXXX XXXXX">
+                        </div>
+
+                        <button type="submit" class="btn-submit" style="width: 100%; justify-content: center; margin-top: 10px;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Profile & Department
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. Handled Subjects Management Card -->
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-book-bookmark"></i> Subjects Handled by You</h3>
+                    <p style="color:#64748B; font-size:13.5px; margin-top:-10px; margin-bottom:20px;">
+                        Select or enter subjects you teach in your department to upload notes for students.
+                    </p>
+
+                    <!-- Currently Handled Subjects List -->
+                    {% if handled_subjects %}
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-weight:700; font-size:13px; color:#475569; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:10px;">
+                                Currently Assigned Subjects ({{ handled_subjects|length }})
+                            </label>
+                            {% for subj in handled_subjects %}
+                                <div class="subject-chip">
+                                    <div>
+                                        <div style="font-weight:700; font-size:15px; color:#0F172A;">
+                                            <span style="color:#2563EB;">[{{ subj.code }}]</span> {{ subj.name }}
+                                        </div>
+                                        <div style="font-size:12.5px; color:#64748B; margin-top:3px;">
+                                            <i class="fa-solid fa-building"></i> {{ subj.department.code|default:"General" }} &bull; {{ subj.get_year_display }} &bull; {{ subj.get_semester_display }}
+                                        </div>
+                                    </div>
+                                    <form method="POST" action="{% url 'staff_dashboard' %}" style="margin:0;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="remove_handled_subject">
+                                        <input type="hidden" name="subject_id" value="{{ subj.id }}">
+                                        <button type="submit" class="btn-danger" onclick="return confirm('Remove {{ subj.name }} from your handled list?')">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div style="text-align:center; padding:20px; background:#F8FAFC; border-radius:14px; border:1px dashed #CBD5E1; margin-bottom:20px;">
+                            <i class="fa-solid fa-book" style="font-size:30px; color:#94A3B8; margin-bottom:8px;"></i>
+                            <p style="margin:0; font-weight:600; color:#64748B; font-size:14px;">No subjects assigned yet.</p>
+                            <small style="color:#94A3B8;">Select an existing department subject below or enter a new one.</small>
+                        </div>
+                    {% endif %}
+
+                    <hr style="border:none; border-top:1px solid #E2E8F0; margin:20px 0;">
+
+                    <!-- Option A: Claim Existing Subject in Department -->
+                    {% if available_dept_subjects %}
+                        <form method="POST" action="{% url 'staff_dashboard' %}" style="margin-bottom:20px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add_handled_subject">
+                            <label style="font-weight:700; font-size:13.5px; color:#0F172A; display:block; margin-bottom:8px;">
+                                <i class="fa-solid fa-link" style="color:#2563EB;"></i> Select Existing Department Subject
+                            </label>
+                            <div style="display:flex; gap:10px;">
+                                <select name="existing_subject_id" class="form-control" required style="flex:1;">
+                                    <option value="">-- Choose Subject to Handle --</option>
+                                    {% for subj in available_dept_subjects %}
+                                        <option value="{{ subj.id }}">
+                                            [{{ subj.code }}] {{ subj.name }} ({{ subj.department.code }} - {{ subj.get_year_display }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn-secondary" style="white-space:nowrap;">
+                                    <i class="fa-solid fa-plus"></i> Assign
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+
+                    <!-- Option B: Add New Subject Handled by Staff -->
+                    <div>
+                        <div style="font-weight:700; font-size:13.5px; color:#0F172A; margin-bottom:10px;">
+                            <i class="fa-solid fa-square-plus" style="color:#2563EB;"></i> Or Create & Assign New Subject
+                        </div>
+                        <form method="POST" action="{% url 'staff_dashboard' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add_handled_subject">
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                                <input type="text" name="subject_code" class="form-control" placeholder="Subject Code (e.g. BCA105)" required>
+                                <input type="text" name="subject_name" class="form-control" placeholder="Subject Name (e.g. Operating Systems)" required>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:12px;">
+                                <select name="subject_type" class="form-control" title="Subject Type">
+                                    <option value="theory">Theory Subject</option>
+                                    <option value="lab">Practical Lab</option>
+                                </select>
+
+                                <select name="subject_department" class="form-control">
+                                    {% for dept in departments %}
+                                        <option value="{{ dept.id }}" {% if staff_profile.department_id == dept.id %}selected{% endif %}>{{ dept.code }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <select name="subject_year" class="form-control">
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                    <option value="3">3rd Year</option>
+                                    <option value="4">4th Year</option>
+                                </select>
+
+                                <select name="subject_sem" class="form-control">
+                                    <option value="1">Sem 1</option>
+                                    <option value="2">Sem 2</option>
+                                    <option value="3">Sem 3</option>
+                                    <option value="4">Sem 4</option>
+                                    <option value="5">Sem 5</option>
+                                    <option value="6">Sem 6</option>
+                                    <option value="7">Sem 7</option>
+                                    <option value="8">Sem 8</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn-submit" style="width:100%; justify-content:center;">
+                                <i class="fa-solid fa-plus-circle"></i> Create & Assign New Subject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3. Upload Subject Notes Card -->
+            <div class="card-box">
+                <h3><i class="fa-solid fa-file-arrow-up"></i> Upload Lecture Notes for Handled Subject</h3>
+                <p style="color:#64748B; font-size:13.5px; margin-top:-10px; margin-bottom:20px;">
+                    Upload PDF study notes, syllabus material, or lecture slides for students taking your subjects.
+                </p>
+
+                {% if handled_subjects %}
+                    <form method="POST" action="{% url 'staff_dashboard' %}" enctype="multipart/form-data" style="margin-bottom: 30px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="upload_note">
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1.5fr 1fr auto; gap:12px; align-items:end;">
+                            <div>
+                                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Handled Subject</label>
+                                <select id="note-subject-select" class="form-control" required onchange="filterUnits()">
+                                    <option value="">-- Select Subject --</option>
+                                    {% for subj in handled_subjects %}
+                                        <option value="{{ subj.id }}">{{ subj.code }} - {{ subj.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Unit / Module (5 Units)</label>
+                                <select name="unit" id="note-unit-select" class="form-control" required disabled>
+                                    <option value="">-- Select Subject First --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Note Title / Topic</label>
+                                <input type="text" name="title" class="form-control" placeholder="e.g. Unit 1 Complete Lecture Notes" required>
+                            </div>
+
+                            <div>
+                                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">PDF File</label>
+                                <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx,.ppt,.pptx" required style="padding: 9px 10px;">
+                            </div>
+
+                            <div>
+                                <button type="submit" class="btn-submit" style="white-space:nowrap; padding: 12px 20px;">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
+                    <div style="padding:15px; background:#EFF6FF; border-left:4px solid #2563EB; border-radius:8px; margin-bottom:25px;">
+                        <p style="margin:0; font-size:13.5px; color:#1E40AF; font-weight:600;">
+                            <i class="fa-solid fa-circle-info"></i> Please assign or create a subject in the section above before uploading notes.
+                        </p>
+                    </div>
+                {% endif %}
+
+                <!-- Uploaded Notes Table -->
+                <h4 style="font-size:16px; color:#0F172A; font-weight:700; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-folder-open" style="color:#2563EB;"></i> Your Uploaded Lecture Notes ({{ uploaded_notes|length }})
+                </h4>
+
+                {% if uploaded_notes %}
+                    <div style="overflow-x:auto;">
+                        <table class="notes-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject & Dept</th>
+                                    <th>Unit</th>
+                                    <th>Note Title</th>
+                                    <th>Uploaded Date</th>
+                                    <th>File Link</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for note in uploaded_notes %}
+                                    <tr>
+                                        <td>
+                                            <span style="font-weight:700; color:#2563EB;">[{{ note.unit.subject.code }}]</span>
+                                            {{ note.unit.subject.name }}
+                                            <br>
+                                            <small style="color:#64748B;">{{ note.unit.subject.department.code|default:"General" }}</small>
+                                        </td>
+                                        <td>Unit {{ note.unit.unit_number }}</td>
+                                        <td style="font-weight:600; color:#0F172A;">{{ note.title }}</td>
+                                        <td style="color:#64748B; font-size:13px;">{{ note.uploaded_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <a href="{{ note.file.url }}" target="_blank" class="btn-secondary" style="padding:5px 10px; font-size:12px;">
+                                                <i class="fa-solid fa-file-pdf" style="color:#DC2626;"></i> View File
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <form method="POST" action="{% url 'staff_dashboard' %}" style="margin:0;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="delete_note">
+                                                <input type="hidden" name="note_id" value="{{ note.id }}">
+                                                <button type="submit" class="btn-danger" onclick="return confirm('Delete note {{ note.title }}?')">
+                                                    <i class="fa-solid fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div style="text-align:center; padding:30px; background:#F8FAFC; border-radius:14px; color:#64748B;">
+                        <i class="fa-solid fa-file-pdf" style="font-size:36px; color:#CBD5E1; margin-bottom:10px;"></i>
+                        <p style="margin:0; font-weight:600;">No lecture notes uploaded yet.</p>
+                        <small>Use the form above to upload study notes for your students.</small>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<script id="handled-units-json" type="application/json">
+[
+    {% for unit in handled_units %}
+        {"id": {{ unit.id }}, "subjectId": {{ unit.subject.id }}, "text": "Unit {{ unit.unit_number }}: {{ unit.title|escapejs }}"}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
+<script>
+    function filterUnits() {
+        const subjectSelect = document.getElementById('note-subject-select');
+        const unitSelect = document.getElementById('note-unit-select');
+        const selectedSubjectId = subjectSelect ? subjectSelect.value : "";
+        if (!unitSelect) return;
+
+        unitSelect.innerHTML = "";
+
+        if (!selectedSubjectId) {
+            const opt = document.createElement('option');
+            opt.value = "";
+            opt.textContent = "-- Select Subject First --";
+            unitSelect.appendChild(opt);
+            unitSelect.disabled = true;
+            return;
+        }
+
+        const dataEl = document.getElementById('handled-units-json');
+        let unitsList = [];
+        if (dataEl) {
+            try { unitsList = JSON.parse(dataEl.textContent); } catch(e) {}
+        }
+
+        unitSelect.disabled = false;
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = "";
+        defaultOpt.textContent = "-- Select Unit (1 to 5) --";
+        unitSelect.appendChild(defaultOpt);
+
+        const filtered = unitsList.filter(u => String(u.subjectId) === String(selectedSubjectId));
+        if (filtered.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = "";
+            opt.textContent = "No units found for this subject";
+            unitSelect.appendChild(opt);
+        } else {
+            filtered.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = u.text;
+                unitSelect.appendChild(opt);
+            });
+        }
+    }
+</script>
+
+</body>
+</html>

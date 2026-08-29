@@ -1,0 +1,415 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Note2Know</title>
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=3">
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
+            <h2>Note2Know</h2>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="menu {% if selected_dept == 'all' and selected_year == 'all' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i> Dashboard
+        </a>
+
+        {% if request.user.is_staff or request.user.is_superuser %}
+            <a href="{% url 'staff_dashboard' %}" class="menu" style="background: rgba(37, 99, 235, 0.15); color: #3B82F6; font-weight: 700;">
+                <i class="fa-solid fa-chalkboard-user"></i> Staff Portal
+            </a>
+        {% endif %}
+
+        <a href="{% url 'profile' %}" class="menu">
+            <i class="fa-solid fa-user"></i> My Profile
+        </a>
+
+        <!-- Department Accordion in Sidebar -->
+        <div class="sidebar-dept-accordion">
+            <div class="sidebar-dept-header" onclick="toggleSidebarMenu('sidebar-dept-body')">
+                <span><i class="fa-solid fa-building"></i> Departments</span>
+                <span id="sidebar-dept-arrow">▼</span>
+            </div>
+            <div id="sidebar-dept-body" class="sidebar-dept-body" style="display: block;">
+                {% for dept in departments %}
+                    <div class="sidebar-dept-item">
+                        <div class="sidebar-dept-title" onclick="toggleSidebarYears('sidebar-years-{{ dept.code }}')">
+                            <span>{% if 'fa-' in dept.icon %}<i class="{{ dept.icon }}"></i>{% else %}{{ dept.icon }}{% endif %} {{ dept.code }}</span>
+                            <span class="tiny-arrow">▸</span>
+                        </div>
+                        <div id="sidebar-years-{{ dept.code }}" class="sidebar-years-container" {% if selected_dept == dept.code %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                            <a href="{% url 'dashboard' %}?dept={{ dept.code }}&year=all&sem=all" class="sidebar-year-link {% if selected_dept == dept.code and selected_year == 'all' %}active{% endif %}">• All Years</a>
+                            {% for y in years_data %}
+                                {% if dept.code == 'MBA' and y.code == '3' %}
+                                    {# MBA has 2 years #}
+                                {% else %}
+                                    <div class="sidebar-year-block">
+                                        <a href="{% url 'dashboard' %}?dept={{ dept.code }}&year={{ y.code }}&sem=all" class="sidebar-year-link {% if selected_dept == dept.code and selected_year == y.code and selected_sem == 'all' %}active{% endif %}">• {{ y.label }}</a>
+                                        <div class="sidebar-sem-nested">
+                                            {% for sem_code, sem_label in y.semesters %}
+                                                <a href="{% url 'semester_notes' sem_code %}?dept={{ dept.code }}" class="sidebar-sem-link {% if selected_dept == dept.code and selected_sem == sem_code %}active{% endif %}">↳ {{ sem_label }}</a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <a href="{% url 'assistant' %}" class="menu">
+            <i class="fa-solid fa-robot"></i> AI Assistant
+        </a>
+
+        <a href="{% url 'progress' %}" class="menu">
+            <i class="fa-solid fa-chart-line"></i> Progress
+        </a>
+
+        <a href="{% url 'logout' %}" class="menu" style="color: #EF4444; margin-top: auto;">
+            <i class="fa-solid fa-right-from-bracket" style="color: #EF4444;"></i> Log Out
+        </a>
+    </aside>
+
+   <main class="content">
+
+<div class="container">
+
+    {% if messages %}
+        <div style="margin-bottom: 25px;">
+            {% for message in messages %}
+                <div style="padding: 14px 20px; border-radius: 14px; background: rgba(153, 27, 27, 0.3); color: #FCA5A5; border: 1px solid #DC2626; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,.3);">
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <section class="welcome-card">
+        <h1>Welcome Back, {{ request.user.first_name|default:request.user.username }}</h1>
+        <p>Continue your academic journey, select your department, download lecture notes, attempt AI quizzes, and track your progress.</p>
+    </section>
+
+    <section class="stats-grid" style="margin-top: 24px;">
+        <div class="stat-card">
+            <h3><i class="fa-solid fa-book-open" style="color: var(--accent-blue);"></i></h3>
+            <h2>{{ subjects|length }}</h2>
+            <p>Subjects Available</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><i class="fa-solid fa-file-pen" style="color: var(--accent-blue);"></i></h3>
+            <h2>{{ total_quizzes }}</h2>
+            <p>Quizzes Completed</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><i class="fa-solid fa-trophy" style="color: var(--accent-blue);"></i></h3>
+            <h2>{{ highest_score }}</h2>
+            <p>Highest Score</p>
+        </div>
+
+        <div class="stat-card">
+            <h3><i class="fa-solid fa-user-graduate" style="color: var(--accent-blue);"></i></h3>
+            <h2>{% if is_student_restricted %}{{ student_year_label }}{% else %}Faculty{% endif %}</h2>
+            <p>Enrolled Status</p>
+        </div>
+    </section>
+
+    <!-- Department, Year & Semester Filter Section -->
+    <div style="background-color: var(--bg-surface); border-radius: var(--radius-card); padding: 28px; border: 1px solid var(--border-light); margin: 35px 0 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+            <div>
+                <h2 style="margin: 0; font-size: 22px; color: var(--text-dark);"><i class="fa-solid fa-graduation-cap" style="color: var(--accent-blue); margin-right: 6px;"></i> Browse Departments & Academic Years</h2>
+                <p style="margin-top: 4px; color: var(--text-muted); font-size: 13px;">Click a department to open its menu and view academic years.</p>
+            </div>
+            {% if is_student_restricted %}
+                <div style="display: inline-flex; align-items: center; gap: 6px; background-color: var(--accent-light); border: 1px solid var(--border-blue); color: var(--accent-blue); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 13px;">
+                    <i class="fa-solid fa-lock"></i> Restricted Access: Enrolled in {{ student_year_label }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Department Cards & Sub-menu showing Years -->
+        <div style="margin-bottom: 20px;">
+            <span style="font-weight: 700; font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-building" style="margin-right: 4px;"></i> Select Department:</span>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px;">
+                <!-- Department Menu Items -->
+                {% for dept in departments %}
+                    <div class="dept-card-wrapper {% if selected_dept == dept.code %}active open{% endif %}" id="dept-wrapper-{{ dept.code }}">
+                        <div class="dept-main-btn {% if selected_dept == dept.code %}active{% endif %}" onclick="toggleDeptMenu('{{ dept.code }}', event)">
+                            <span class="dept-btn-icon">{% if 'fa-' in dept.icon %}<i class="{{ dept.icon }}"></i>{% else %}{{ dept.icon }}{% endif %}</span>
+                            <div class="dept-btn-text">
+                                <span class="dept-btn-name">{{ dept.name }}</span>
+                                <span class="dept-btn-code">{{ dept.code }}</span>
+                            </div>
+                            <span class="dept-arrow-icon" id="arrow-{{ dept.code }}">{% if selected_dept == dept.code %}▲{% else %}▼{% endif %}</span>
+                        </div>
+
+                        <!-- Sub-menu inside Department showing Years & Nested Semesters -->
+                        <div class="dept-years-dropdown {% if selected_dept == dept.code %}show{% endif %}" id="years-dropdown-{{ dept.code }}">
+                            <div class="dropdown-header">
+                                <i class="fa-solid fa-calendar-days" style="margin-right: 4px;"></i> <strong>{{ dept.code }}</strong> Academic Years & Semesters:
+                            </div>
+                            <div class="years-pill-list">
+                                <div class="year-group-box">
+                                    <a href="?dept={{ dept.code }}&year=all&sem=all" class="year-sub-pill {% if selected_dept == dept.code and selected_year == 'all' %}active{% endif %}">
+                                        All Years & Semesters
+                                    </a>
+                                </div>
+
+                                {% for y in years_data %}
+                                    {% if dept.code == 'MBA' and y.code == '3' %}
+                                        {# MBA has 2 years only #}
+                                    {% else %}
+                                        <div class="year-group-box">
+                                            <div class="year-group-header">
+                                                {% if is_student_restricted and y.code != selected_year and y.code != 'all' %}
+                                                    <span class="year-sub-pill locked" title="Access restricted to {{ student_year_label }}">
+                                                        {{ y.label }} <i class="fa-solid fa-lock" style="font-size: 11px; margin-left: 3px;"></i>
+                                                    </span>
+                                                {% else %}
+                                                    <a href="?dept={{ dept.code }}&year={{ y.code }}&sem=all" class="year-sub-pill {% if selected_dept == dept.code and selected_year == y.code and selected_sem == 'all' %}active{% endif %}">
+                                                        {{ y.label }}
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="sem-nested-list">
+                                                {% for sem_code, sem_label in y.semesters %}
+                                                    {% if is_student_restricted and y.code != selected_year %}
+                                                        <span class="sem-sub-pill locked" title="Access restricted to {{ student_year_label }}">
+                                                            {{ sem_label }} <i class="fa-solid fa-lock" style="font-size: 11px; margin-left: 3px;"></i>
+                                                        </span>
+                                                    {% else %}
+                                                        <a href="{% url 'semester_notes' sem_code %}?dept={{ dept.code }}" class="sem-sub-pill {% if selected_dept == dept.code and selected_sem == sem_code %}active{% endif %}">
+                                                            {{ sem_label }}
+                                                        </a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Semester Sections with Subjects & Notes (Shown when filtered) -->
+    <div style="margin-top: 10px;">
+        {% if selected_dept != 'all' or selected_year != 'all' or selected_sem != 'all' %}
+            {% if subjects_by_semester %}
+                {% for sem_info in subjects_by_semester %}
+                    <div class="welcome-card" style="margin-bottom: 24px; padding: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <span class="dept-badge" style="margin-bottom: 4px;">
+                                    <i class="fa-solid fa-graduation-cap" style="margin-right: 4px;"></i> {{ sem_info.label }} Section
+                                </span>
+                                <h2 style="font-size: 22px; font-weight: 800; color: var(--text-dark); margin-top: 4px;">
+                                    {{ sem_info.label }} Subjects & Lecture Notes
+                                </h2>
+                            </div>
+                            <a href="{% url 'semester_notes' sem_info.num %}{% if selected_dept != 'all' %}?dept={{ selected_dept }}{% endif %}" class="button-secondary" style="font-size: 13px; padding: 8px 16px;">
+                                View Full Semester {{ sem_info.num }} Notes <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <div class="subject-grid" style="margin-top: 0;">
+                            {% if sem_info.theory_subjects %}
+                                <div style="grid-column: 1 / -1; margin: 10px 0 5px;">
+                                    <h3 style="font-size: 16px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-book" style="color: #2563EB;"></i> Theory Subjects ({{ sem_info.theory_subjects|length }})
+                                    </h3>
+                                </div>
+                                {% for subject in sem_info.theory_subjects %}
+                                    <div class="subject-card">
+                                        <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
+                                            <span class="dept-badge"><i class="fa-solid fa-building" style="margin-right: 4px;"></i>{{ subject.department.code|default:"BCA" }}</span>
+                                            <div style="display:inline-block; padding:4px 10px; background:#DBEAFE; color:#2563EB; border-radius:12px; font-size:12px; font-weight:600;">
+                                                <i class="fa-solid fa-book-bookmark" style="margin-right: 4px;"></i>{{ subject.get_semester_display }}
+                                            </div>
+                                            <div style="display:inline-block; padding:4px 10px; background:#F1F5F9; color:#475569; border-radius:12px; font-size:12px; font-weight:600;">
+                                                <i class="fa-solid fa-layer-group" style="margin-right: 4px;"></i>5 Units
+                                            </div>
+                                        </div>
+
+                                        <div class="subject-icon"><i class="fa-solid fa-book-open" style="color: #2563EB;"></i></div>
+
+                                        <h3 style="font-size: 17px; font-weight: 700; color: var(--text-dark); min-height: 44px; display: flex; align-items: center; justify-content: center;">{{ subject.name }}</h3>
+                                        <p style="margin-top: 4px; font-size: 13px; color: var(--text-muted);">Subject Code : {{ subject.code }}</p>
+
+                                        <a class="button" href="{% url 'subject_detail' subject.id %}" style="margin-top: 16px; width: 100%;">
+                                            Open Subject (5 Units)
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if sem_info.lab_subjects %}
+                                <div style="grid-column: 1 / -1; margin: 25px 0 5px;">
+                                    <h3 style="font-size: 16px; font-weight: 800; color: #065F46; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-flask" style="color: #059669;"></i> Practical Labs ({{ sem_info.lab_subjects|length }})
+                                    </h3>
+                                </div>
+                                {% for subject in sem_info.lab_subjects %}
+                                    <div class="subject-card" style="border: 1.5px solid #A7F3D0; background: #F0FDF4;">
+                                        <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
+                                            <span class="dept-badge" style="background: #D1FAE5; color: #065F46;"><i class="fa-solid fa-flask" style="margin-right: 4px;"></i>LAB</span>
+                                            <div style="display:inline-block; padding:4px 10px; background:#D1FAE5; color:#047857; border-radius:12px; font-size:12px; font-weight:600;">
+                                                <i class="fa-solid fa-microscope" style="margin-right: 4px;"></i>{{ subject.get_semester_display }}
+                                            </div>
+                                            <div style="display:inline-block; padding:4px 10px; background:#ECFDF5; color:#065F46; border-radius:12px; font-size:12px; font-weight:600;">
+                                                <i class="fa-solid fa-vial" style="margin-right: 4px;"></i>5 Units
+                                            </div>
+                                        </div>
+
+                                        <div class="subject-icon" style="background: #D1FAE5;"><i class="fa-solid fa-flask" style="color: #059669;"></i></div>
+
+                                        <h3 style="font-size: 17px; font-weight: 700; color: #064E3B; min-height: 44px; display: flex; align-items: center; justify-content: center;">{{ subject.name }}</h3>
+                                        <p style="margin-top: 4px; font-size: 13px; color: #047857;">Lab Code : {{ subject.code }}</p>
+
+                                        <a class="button" href="{% url 'subject_detail' subject.id %}" style="margin-top: 16px; width: 100%; background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                                            Open Lab (5 Units)
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if not sem_info.theory_subjects and not sem_info.lab_subjects %}
+                                {% for subject in sem_info.all_subjects %}
+                                    <div class="subject-card">
+                                        <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
+                                            <span class="dept-badge"><i class="fa-solid fa-building" style="margin-right: 4px;"></i>{{ subject.department.code|default:"BCA" }}</span>
+                                            <div style="display:inline-block; padding:4px 10px; background:#DBEAFE; color:#2563EB; border-radius:12px; font-size:12px; font-weight:600;">
+                                                <i class="fa-solid fa-book-bookmark" style="margin-right: 4px;"></i>{{ subject.get_semester_display }}
+                                            </div>
+                                        </div>
+
+                                        <div class="subject-icon"><i class="fa-solid fa-book-open" style="color: #2563EB;"></i></div>
+
+                                        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-dark);">{{ subject.name }}</h3>
+                                        <p style="margin-top: 4px; font-size: 13px; color: var(--text-muted);">Subject Code : {{ subject.code }}</p>
+
+                                        <a class="button" href="{% url 'subject_detail' subject.id %}" style="margin-top: 16px; width: 100%;">
+                                            Open Subject & Notes
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="welcome-card" style="text-align: center; padding: 40px; margin-bottom: 30px;">
+                    <i class="fa-solid fa-book-open" style="font-size: 40px; color: var(--text-subtle); margin-bottom: 12px;"></i>
+                    <h3 style="font-size: 20px; font-weight: 700; color: var(--text-dark);">No Subjects Available</h3>
+                    <p style="color: var(--text-muted); font-size: 14.5px;">No subjects found for the selected department or semester filter.</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="welcome-card" style="text-align: center; padding: 32px; margin-bottom: 25px; background: #F8FAFC; border: 1.5px dashed #CBD5E1;">
+                <i class="fa-solid fa-graduation-cap" style="font-size: 36px; color: #2563EB; margin-bottom: 10px;"></i>
+                <h3 style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0 0 6px 0;">Select a Department or Academic Semester Above</h3>
+                <p style="color: #64748B; font-size: 14px; margin: 0;">Click on any department card above (BCA, BBA, B.Com, MBA) to browse your academic year and semester subjects.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <h2 style="margin:40px 0 20px;">Quick Actions</h2>
+
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <h3><i class="fa-solid fa-robot" style="color: #2563EB;"></i></h3>
+            <p>Ask AI Study Assistant</p>
+            <a href="{% url 'assistant' %}" class="button">
+                Ask AI
+            </a>
+        </div>
+
+        <div class="stat-card">
+            <h3><i class="fa-solid fa-chart-line" style="color: #7C3AED;"></i></h3>
+            <p>Check your quiz performance</p>
+            <a href="{% url 'progress' %}" class="button">
+                My Progress
+            </a>
+        </div>
+    </section>
+
+</div>
+</main>
+
+</div>
+
+<script>
+const today = new Date();
+
+document.getElementById("today-date").innerHTML =
+today.toLocaleDateString("en-IN",{
+    day:"numeric",
+    month:"long",
+    year:"numeric"
+});
+
+function toggleDeptMenu(deptCode, event) {
+    if (event) event.stopPropagation();
+    const dropdown = document.getElementById('years-dropdown-' + deptCode);
+    const arrow = document.getElementById('arrow-' + deptCode);
+    const wrapper = document.getElementById('dept-wrapper-' + deptCode);
+
+    if (dropdown) {
+        const isShown = dropdown.classList.contains('show');
+
+        // Close all open department dropdowns
+        document.querySelectorAll('.dept-years-dropdown').forEach(el => el.classList.remove('show'));
+        document.querySelectorAll('.dept-arrow-icon').forEach(el => el.textContent = '▼');
+        document.querySelectorAll('.dept-card-wrapper').forEach(el => el.classList.remove('open'));
+
+        if (!isShown) {
+            dropdown.classList.add('show');
+            if (arrow) arrow.textContent = '▲';
+            if (wrapper) wrapper.classList.add('open');
+        }
+    }
+}
+
+function toggleSidebarMenu(id) {
+    const el = document.getElementById(id);
+    const arrow = document.getElementById('sidebar-dept-arrow');
+    if (el) {
+        if (el.style.display === 'none') {
+            el.style.display = 'block';
+            if (arrow) arrow.textContent = '▼';
+        } else {
+            el.style.display = 'none';
+            if (arrow) arrow.textContent = '▶';
+        }
+    }
+}
+
+function toggleSidebarYears(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        const isVisible = (el.style.display === 'block');
+        el.style.display = isVisible ? 'none' : 'block';
+    }
+}
+</script>
+
+</body>
+</html>

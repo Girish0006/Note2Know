@@ -1,0 +1,302 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Assistant | Note2Know</title>
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=2">
+    <style>
+        .chat-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.3);
+        }
+        .chat-box {
+            max-height: 450px;
+            min-height: 220px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .msg-bubble {
+            max-width: 85%;
+            padding: 14px 20px;
+            border-radius: 16px;
+            line-height: 1.6;
+            font-size: 15px;
+            white-space: pre-wrap;
+        }
+        .msg-user {
+            align-self: flex-end;
+            background: var(--accent-blue);
+            color: #FFFFFF;
+            font-weight: 600;
+            border-bottom-right-radius: 4px;
+        }
+        .msg-ai {
+            align-self: flex-start;
+            background: var(--bg-surface);
+            color: var(--text-dark);
+            border: 1px solid var(--border-light);
+            border-bottom-left-radius: 4px;
+        }
+        .suggestion-chip {
+            display: inline-block;
+            padding: 8px 14px;
+            background: var(--accent-light);
+            color: var(--accent-blue);
+            border: 1px solid var(--border-blue);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .suggestion-chip:hover {
+            background: var(--accent-blue);
+            color: #FFFFFF;
+            border-color: var(--accent-blue);
+        }
+        .context-select {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
+            <h2>Note2Know</h2>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="menu">
+            <i class="fa-solid fa-house"></i> Dashboard
+        </a>
+        <a href="{% url 'profile' %}" class="menu">
+            <i class="fa-solid fa-user"></i> My Profile
+        </a>
+        <a href="{% url 'assistant' %}" class="menu active">
+            <i class="fa-solid fa-robot"></i> AI Assistant
+        </a>
+        <a href="{% url 'progress' %}" class="menu">
+            <i class="fa-solid fa-chart-line"></i> Progress
+        </a>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+
+            <div class="welcome-card">
+                <h1><i class="fa-solid fa-robot" style="color: #2563EB; margin-right: 8px;"></i> AI Study Assistant</h1>
+                <p>Ask Note2Know AI any academic questions, request unit explanations, or practice key exam concepts!</p>
+            </div>
+
+            <!-- Context Filter Bar -->
+            <div style="background: #ffffff; border: 1px solid #E5E7EB; border-radius: 16px; padding: 18px 24px; margin-top: 25px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+                <span style="font-weight: 600; font-size: 14px; color: #4B5563;"><i class="fa-solid fa-bullseye" style="margin-right: 6px;"></i> Select Study Context (Optional):</span>
+                <select id="subject-select" class="context-select" onchange="onSubjectChange()">
+                    <option value="">All Enrolled Subjects</option>
+                    {% for subject in subjects %}
+                        <option value="{{ subject.id }}" {% if selected_subject_id == subject.id %}selected{% endif %}>
+                            {{ subject.code }} - {{ subject.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select id="unit-select" class="context-select" disabled>
+                    <option value="">-- Select Subject First --</option>
+                </select>
+            </div>
+
+            <!-- Quick Suggestions -->
+            <div style="margin-top: 20px;">
+                <div class="suggestion-chip" onclick="fillPrompt('Explain the core concepts of this subject simply with real-world examples.')">
+                    <i class="fa-solid fa-lightbulb" style="color: #F59E0B; margin-right: 4px;"></i> Real-world Examples
+                </div>
+                <div class="suggestion-chip" onclick="fillPrompt('What are the top 5 most important exam questions for this unit?')">
+                    <i class="fa-solid fa-file-pen" style="color: #2563EB; margin-right: 4px;"></i> Top Exam Questions
+                </div>
+                <div class="suggestion-chip" onclick="fillPrompt('Provide key definitions, formulas, and cheat sheet bullet points.')">
+                    <i class="fa-solid fa-thumbtack" style="color: #EF4444; margin-right: 4px;"></i> Key Definitions & Formulas
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-container">
+                <div id="chat-box" class="chat-box">
+                    <div class="msg-bubble msg-ai">
+                        👋 Hi! I am <strong>Note2Know AI Assistant</strong>. Select a subject above or type any question below to get instant study help!
+                    </div>
+                </div>
+
+                <form id="chat-form" onsubmit="handleSend(event)" style="display: flex; gap: 12px; align-items: center;">
+                    {% csrf_token %}
+                    <input
+                        type="text"
+                        id="user-input"
+                        placeholder="Ask your question here..."
+                        style="flex: 1; padding: 14px 18px; border-radius: 12px; border: 1px solid #D1D5DB; font-size: 15px; outline: none;"
+                        required
+                        value="{{ initial_question }}"
+                    />
+                    <button type="submit" id="send-btn" class="button" style="margin-top: 0; padding: 14px 24px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <span>Ask AI</span> 🚀
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<script id="all-units-data" type="application/json">
+[
+    {% for subject in subjects %}
+        {% for unit in subject.units.all %}
+            {"id": {{ unit.id }}, "subjectId": {{ subject.id }}, "text": "Unit {{ unit.unit_number }}: {{ unit.title|escapejs }}"}{% if not forloop.last %},{% endif %}
+        {% endfor %}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    function fillPrompt(text) {
+        document.getElementById('user-input').value = text;
+        document.getElementById('user-input').focus();
+    }
+
+    function onSubjectChange() {
+        const subId = document.getElementById('subject-select').value;
+        const unitSelect = document.getElementById('unit-select');
+        const selectedUnitId = "{{ selected_unit_id|default:'' }}";
+
+        const dataElement = document.getElementById('all-units-data');
+        let allUnits = [];
+        if (dataElement) {
+            try { allUnits = JSON.parse(dataElement.textContent); } catch(e) {}
+        }
+
+        unitSelect.innerHTML = '';
+        if (!subId) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '-- Select Subject First --';
+            unitSelect.appendChild(opt);
+            unitSelect.disabled = true;
+            return;
+        }
+
+        unitSelect.disabled = false;
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = 'All Units of Subject';
+        unitSelect.appendChild(defaultOpt);
+
+        const filtered = allUnits.filter(u => String(u.subjectId) === String(subId));
+        filtered.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.id;
+            opt.textContent = u.text;
+            if (String(u.id) === String(selectedUnitId)) {
+                opt.selected = true;
+            }
+            unitSelect.appendChild(opt);
+        });
+    }
+
+    async function handleSend(e) {
+        e.preventDefault();
+        const inputEl = document.getElementById('user-input');
+        const question = inputEl.value.trim();
+        if (!question) return;
+
+        const chatBox = document.getElementById('chat-box');
+        const subjectId = document.getElementById('subject-select').value;
+        const unitId = document.getElementById('unit-select').value;
+
+        // Render User Message
+        const userDiv = document.createElement('div');
+        userDiv.className = 'msg-bubble msg-user';
+        userDiv.textContent = question;
+        chatBox.appendChild(userDiv);
+
+        inputEl.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Render Loading Indicator
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'msg-bubble msg-ai';
+        loadingDiv.innerHTML = '<em>🤖 Note2Know AI is thinking...</em>';
+        chatBox.appendChild(loadingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            const response = await fetch("{% url 'assistant_api' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+                body: JSON.stringify({
+                    question: question,
+                    subject_id: subjectId,
+                    unit_id: unitId
+                })
+            });
+
+            const data = await response.json();
+            if (data.status === "success") {
+                loadingDiv.innerHTML = formatMarkdown(data.answer);
+            } else {
+                loadingDiv.innerHTML = "⚠️ " + (data.message || "Failed to get AI response.");
+            }
+        } catch (err) {
+            loadingDiv.innerHTML = "⚠️ Network error communicating with AI server.";
+        }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function formatMarkdown(str) {
+        if (!str) return '';
+        let formatted = str
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/^### (.*$)/gim, '<h3 style="margin:10px 0 5px; color:#1F2937;">$1</h3>')
+            .replace(/^## (.*$)/gim, '<h2 style="margin:12px 0 6px; color:#111827;">$1</h2>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, '<code style="background:#E5E7EB; padding:2px 6px; border-radius:4px;">$1</code>');
+        return formatted;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        onSubjectChange();
+        const initialVal = document.getElementById('user-input').value;
+        if (initialVal) {
+            document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+        }
+    });
+</script>
+
+</body>
+</html>

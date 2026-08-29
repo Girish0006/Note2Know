@@ -1,0 +1,256 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject.name }} | Note2Know</title>
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=2">
+    <style>
+        .unit-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .ai-btn-primary {
+            background: var(--yellow-primary);
+            color: var(--text-dark);
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .ai-btn-primary:hover {
+            background: var(--yellow-accent);
+            color: var(--text-dark);
+        }
+        .ai-btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+        }
+        .ai-btn-secondary:hover {
+            border-color: var(--yellow-primary);
+            color: var(--yellow-primary);
+            background: var(--bg-surface);
+        }
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-light);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 650px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
+            <h2>Note2Know</h2>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="menu">
+            <i class="fa-solid fa-house"></i> Dashboard
+        </a>
+        <a href="{% url 'assistant' %}" class="menu">
+            <i class="fa-solid fa-robot"></i> AI Assistant
+        </a>
+        <a href="{% url 'progress' %}" class="menu">
+            <i class="fa-solid fa-chart-line"></i> Progress
+        </a>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+
+            <!-- Messages Alert -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-{{ message.tags|default:'info' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="welcome-card">
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                    <span class="dept-badge"><i class="fa-solid fa-building" style="margin-right: 4px;"></i> {{ subject.department.name|default:"Bachelor of Computer Applications" }} ({{ subject.department.code|default:"BCA" }})</span>
+                    <span style="background: rgba(0, 166, 192, 0.15); color: var(--accent-vibrant); border: 1px solid rgba(0, 166, 192, 0.3); padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
+                        <i class="fa-solid fa-user-graduate" style="margin-right: 4px;"></i> {{ subject.get_year_display }} | {{ subject.get_semester_display }}
+                    </span>
+                    {% if subject.subject_type == 'lab' %}
+                        <span style="background: #D1FAE5; color: #047857; border: 1px solid #A7F3D0; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:700;">
+                            <i class="fa-solid fa-flask" style="margin-right: 4px;"></i> Practical Lab
+                        </span>
+                    {% else %}
+                        <span style="background: #DBEAFE; color: #1D4ED8; border: 1px solid #BFDBFE; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:700;">
+                            <i class="fa-solid fa-book" style="margin-right: 4px;"></i> Theory Subject
+                        </span>
+                    {% endif %}
+                    <span style="background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:700;">
+                        <i class="fa-solid fa-layer-group" style="margin-right: 4px;"></i> {{ subject.units.count }} Units
+                    </span>
+                </div>
+                <h1>{{ subject.name }}</h1>
+                <p>Code: <strong>{{ subject.code }}</strong> | Department: <strong>{{ subject.department.code|default:"BCA" }}</strong> | {{ subject.get_year_display }} | {{ subject.get_semester_display }}</p>
+            </div>
+
+            <br>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 20px; font-weight: 800; color: var(--text-dark); margin: 0;">
+                    <i class="fa-solid fa-list-check" style="color: #2563EB; margin-right: 6px;"></i> Syllabus Units (5 Units)
+                </h2>
+                <a href="{% url 'dashboard' %}" class="button-secondary" style="font-size: 13px; text-decoration: none;">
+                    <i class="fa-solid fa-arrow-left" style="margin-right: 6px;"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <div class="subject-grid">
+            {% for unit in subject.units.all %}
+                <div class="subject-card">
+                    <div class="subject-icon">
+                        {% if subject.subject_type == 'lab' %}
+                            <i class="fa-solid fa-flask" style="color: #059669;"></i>
+                        {% else %}
+                            <i class="fa-solid fa-book-open" style="color: #2563EB;"></i>
+                        {% endif %}
+                    </div>
+                    <span style="display: inline-block; padding: 3px 10px; background: #EEF2FF; color: #4338CA; border-radius: 10px; font-size: 12px; font-weight: 700; margin-bottom: 8px;">
+                        Unit {{ unit.unit_number }} of 5
+                    </span>
+                    <h3 style="font-size: 16px; font-weight: 700; color: #1E293B; margin-top: 4px;">Unit {{ unit.unit_number }}</h3>
+                    <p style="color: #4B5563; font-weight: 500; font-size: 13.5px; margin-bottom: 15px; min-height: 40px;">{{ unit.title }}</p>
+
+                    <div class="unit-actions">
+                        {% for note in unit.notes.all %}
+                            <a class="button" href="{{ note.file.url }}" target="_blank" style="margin-top: 0;">
+                                <i class="fa-solid fa-file-arrow-down" style="margin-right: 6px;"></i> Download Notes
+                            </a>
+                        {% endfor %}
+
+                        <a class="ai-btn-secondary" href="{% url 'unit_quiz' unit.id %}">
+                            <i class="fa-solid fa-file-pen" style="margin-right: 6px;"></i> Take Unit Quiz ({{ unit.questions.count }} questions)
+                        </a>
+
+                        <a class="ai-btn-primary" href="{% url 'generate_ai_quiz' unit.id %}">
+                            <i class="fa-solid fa-bolt" style="margin-right: 6px;"></i> Generate New AI Quiz Questions
+                        </a>
+
+                        <button class="ai-btn-secondary" onclick="loadAISummary('{{ unit.id }}')">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="margin-right: 6px; color: #7C3AED;"></i> View AI Study Guide
+                        </button>
+
+                        <a class="ai-btn-secondary" href="{% url 'assistant' %}?subject_id={{ subject.id }}&unit_id={{ unit.id }}">
+                            <i class="fa-solid fa-comments" style="margin-right: 6px; color: #2563EB;"></i> Ask AI Assistant
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="subject-card" style="grid-column: 1 / -1;">
+                    <h3>No Units Found</h3>
+                    <p>No units added to this subject yet.</p>
+                </div>
+            {% endfor %}
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<!-- AI Summary Modal -->
+<div id="summary-modal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button onclick="closeModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+        <h2 id="modal-title" style="margin-bottom: 10px; color: #1E293B;"><i class="fa-solid fa-wand-magic-sparkles" style="color: #7C3AED; margin-right: 6px;"></i> AI Study Guide</h2>
+        <div id="modal-body" style="line-height: 1.7; color: #334155; white-space: pre-wrap; margin-top: 15px;">
+            <em>Loading study guide from AI...</em>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadAISummary(unitId) {
+        const modal = document.getElementById('summary-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+
+        modalTitle.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="color: #7C3AED; margin-right: 6px;"></i> Generating AI Study Guide...';
+        modalBody.innerHTML = "<em>Note2Know AI is analyzing unit concepts and notes... Please wait.</em>";
+        modal.style.display = "flex";
+
+        try {
+            const response = await fetch(`/unit/${unitId}/summary/`);
+            const data = await response.json();
+            if (data.status === 'success') {
+                modalTitle.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="color: #7C3AED; margin-right: 6px;"></i> ' + data.unit_title;
+                modalBody.innerHTML = formatMarkdown(data.summary);
+            } else {
+                modalBody.innerHTML = (data.message || "Could not load summary.");
+            }
+        } catch (err) {
+            modalBody.innerHTML = "Error communicating with server.";
+        }
+    }
+
+    function closeModal(e) {
+        document.getElementById('summary-modal').style.display = "none";
+    }
+
+    function formatMarkdown(str) {
+        if (!str) return '';
+        let formatted = str
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/^### (.*$)/gim, '<h3 style="margin:16px 0 8px; color:#1F2937;">$1</h3>')
+            .replace(/^## (.*$)/gim, '<h2 style="margin:18px 0 8px; color:#111827;">$1</h2>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, '<code style="background:#E5E7EB; padding:2px 6px; border-radius:4px;">$1</code>');
+        return formatted;
+    }
+</script>
+
+</body>
+</html>

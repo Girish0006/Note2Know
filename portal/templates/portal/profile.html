@@ -1,0 +1,565 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Note2Know</title>
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=4">
+    <style>
+        .profile-hero {
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+            color: white;
+            padding: 35px 30px;
+            border-radius: 24px;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.2);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .profile-avatar-box {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar-circle {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .profile-details h1 {
+            margin: 0 0 6px 0;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .profile-details p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .role-badge {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-box {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .04);
+            margin-bottom: 25px;
+        }
+
+        .card-box h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+            background: var(--bg-primary);
+            color: var(--text-light);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-vibrant);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .btn-submit {
+            background: var(--accent-vibrant);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-vibrant-hover);
+            box-shadow: 0 0 25px var(--accent-glow-strong);
+            transform: translateY(-2px);
+        }
+
+        .stats-mini-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-mini-card {
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .stat-mini-card h4 {
+            margin: 0;
+            font-size: 12px;
+            color: #1E40AF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-mini-card p {
+            margin: 6px 0 0 0;
+            font-size: 24px;
+            font-weight: 800;
+            color: #1E3A8A;
+        }
+
+        .notes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .notes-table th, .notes-table td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .notes-table th {
+            background: var(--bg-primary);
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .btn-delete {
+            background: rgba(153, 27, 27, 0.3);
+            color: #FCA5A5;
+            border: 1px solid #DC2626;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #DC2626;
+            color: white;
+        }
+
+        .alert-msg {
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .alert-error {
+            background: rgba(153, 27, 27, 0.3);
+            color: #FCA5A5;
+            border: 1px solid #DC2626;
+        }
+
+        .alert-success {
+            background: rgba(6, 95, 70, 0.3);
+            color: #6EE7B7;
+            border: 1px solid #059669;
+        }
+
+        .score-badge {
+            font-weight: 700;
+        }
+
+        .score-perfect {
+            color: #059669;
+        }
+
+        .score-normal {
+            color: #2563EB;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
+            <h2>Note2Know</h2>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="menu">
+            <i class="fa-solid fa-house"></i> Dashboard
+        </a>
+
+        {% if request.user.is_staff or request.user.is_superuser %}
+            <a href="{% url 'staff_dashboard' %}" class="menu" style="background: rgba(37, 99, 235, 0.15); color: #3B82F6; font-weight: 700;">
+                <i class="fa-solid fa-chalkboard-user"></i> Staff Portal
+            </a>
+        {% endif %}
+
+        <a href="{% url 'profile' %}" class="menu active">
+            <i class="fa-solid fa-user"></i> My Profile
+        </a>
+
+        <a href="{% url 'assistant' %}" class="menu">
+            <i class="fa-solid fa-robot"></i> AI Assistant
+        </a>
+
+        <a href="{% url 'progress' %}" class="menu">
+            <i class="fa-solid fa-chart-line"></i> Progress
+        </a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+        <div class="container">
+
+            {% if messages %}
+                <div style="margin-bottom: 25px;">
+                    {% for message in messages %}
+                        <div class="alert-msg {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Hero Card -->
+            <div class="profile-hero">
+                <div class="profile-avatar-box">
+                    <div class="avatar-circle">
+                        {% if is_staff %}<i class="fa-solid fa-chalkboard-user"></i>{% else %}<i class="fa-solid fa-user-graduate"></i>{% endif %}
+                    </div>
+                    <div class="profile-details">
+                        <h1>{{ request.user.get_full_name|default:request.user.username }}</h1>
+                        <p><i class="fa-solid fa-envelope" style="margin-right: 6px;"></i>{{ request.user.email|default:"No email address added" }}</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="role-badge">
+                        {% if is_staff %}<i class="fa-solid fa-chalkboard-user" style="margin-right: 4px;"></i> Faculty / Staff Profile{% else %}<i class="fa-solid fa-user-graduate" style="margin-right: 4px;"></i> Student Profile{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Profile Content Grid -->
+            <div class="profile-grid">
+
+                <!-- Left Column: Personal Info & Edit Form -->
+                <div>
+                    <div class="card-box">
+                        <h3><i class="fa-solid fa-gear" style="color: #2563EB; margin-right: 6px;"></i> Personal Information</h3>
+
+                        <form method="POST" action="{% url 'profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update_profile">
+
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" class="form-control" id="username" value="{{ request.user.username }}" disabled style="opacity: 0.7; cursor: not-allowed;">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" class="form-control" name="first_name" id="first_name" value="{{ request.user.first_name }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" class="form-control" name="last_name" id="last_name" value="{{ request.user.last_name }}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" class="form-control" name="email" id="email" value="{{ request.user.email }}">
+                            </div>
+
+                            {% if not is_staff %}
+                                <div class="form-group">
+                                    <label for="department">Enrolled Department</label>
+                                    <select class="form-control" name="department" id="department">
+                                        <option value="">-- Select Department --</option>
+                                        {% for dept in departments %}
+                                            <option value="{{ dept.id }}" {% if student_profile.department_id == dept.id %}selected{% endif %}>
+                                                {{ dept.code }} - {{ dept.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="year">Academic Year</label>
+                                    <select class="form-control" name="year" id="year">
+                                        <option value="1" {% if student_profile.year == 1 %}selected{% endif %}>1st Year</option>
+                                        <option value="2" {% if student_profile.year == 2 %}selected{% endif %}>2nd Year</option>
+                                        <option value="3" {% if student_profile.year == 3 %}selected{% endif %}>3rd Year</option>
+                                    </select>
+                                </div>
+                            {% endif %}
+
+                            <button type="submit" class="btn-submit" style="width: 100%; justify-content: center; margin-top: 10px;">
+                                <i class="fa-solid fa-floppy-disk" style="margin-right: 6px;"></i> Save Profile Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Column: Staff Notes Upload OR Student Progress -->
+                <div>
+                    {% if is_staff %}
+                        <!-- Staff PDF Notes Upload Box -->
+                        <div class="card-box" style="border-top: 4px solid #2563EB;">
+                            <h3><i class="fa-solid fa-file-arrow-up" style="color: #2563EB; margin-right: 6px;"></i> Upload PDF Notes (Faculty / Staff)</h3>
+                            <p style="font-size: 13px; color: #6B7280; margin-bottom: 20px;">Upload official unit PDF notes for students to access in their semester views.</p>
+
+                            <form method="POST" action="{% url 'upload_note' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+
+                                <div class="form-group">
+                                    <label for="profile_subj_select">Select Subject *</label>
+                                    <select class="form-control" id="profile_subj_select" onchange="filterProfileUnits()">
+                                        <option value="">-- Select Subject --</option>
+                                        {% for subj in subjects %}
+                                            <option value="{{ subj.id }}">[{{ subj.department.code|default:"BCA" }}] {{ subj.code }} - {{ subj.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="unit_select">Select Unit (5 Units) *</label>
+                                    <select class="form-control" name="unit" id="unit_select" required disabled>
+                                        <option value="">-- Select Subject First --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="note_title">Note Title *</label>
+                                    <input type="text" class="form-control" name="title" id="note_title" placeholder="e.g. Unit 1 Complete Study Material PDF" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="note_file">Attach PDF File *</label>
+                                    <input type="file" class="form-control" name="file" id="note_file" accept=".pdf" required style="padding: 8px;">
+                                </div>
+
+                                <button type="submit" class="btn-submit">
+                                    <i class="fa-solid fa-upload" style="margin-right: 6px;"></i> Upload Note PDF
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Staff Uploaded Notes History Table -->
+                        <div class="card-box">
+                            <h3><i class="fa-solid fa-folder-open" style="color: #2563EB; margin-right: 6px;"></i> Your Uploaded Notes</h3>
+                            {% if staff_notes %}
+                                <div style="overflow-x: auto;">
+                                    <table class="notes-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Subject & Unit</th>
+                                                <th>Title</th>
+                                                <th>Uploaded</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for note in staff_notes %}
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ note.unit.subject.code }}</strong><br>
+                                                        <span style="font-size: 11px; color: #6B7280;">Unit {{ note.unit.unit_number }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ note.file.url }}" target="_blank" style="color: #2563EB; font-weight: 600; text-decoration: none;">
+                                                            <i class="fa-solid fa-file-pdf" style="color: #DC2626; margin-right: 4px;"></i> {{ note.title }}
+                                                        </a>
+                                                    </td>
+                                                    <td style="font-size: 12px; color: #6B7280;">
+                                                        {{ note.uploaded_at|date:"M d, Y" }}
+                                                    </td>
+                                                    <td>
+                                                        <a href="{% url 'delete_note' note.id %}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this note?')">
+                                                            <i class="fa-solid fa-trash" style="margin-right: 3px;"></i> Delete
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p style="font-size: 14px; color: #6B7280; font-style: italic; margin: 10px 0 0 0;">You haven't uploaded any notes yet. Use the upload form above to add notes.</p>
+                            {% endif %}
+                        </div>
+
+                    {% else %}
+                        <!-- Student Quiz Stats & Overview -->
+                        <div class="card-box">
+                            <h3><i class="fa-solid fa-chart-pie" style="color: #2563EB; margin-right: 6px;"></i> Academic Overview</h3>
+                            <div class="stats-mini-grid">
+                                <div class="stat-mini-card">
+                                    <h4>Quizzes Attempted</h4>
+                                    <p>{{ quiz_stats.total_quizzes }}</p>
+                                </div>
+                                <div class="stat-mini-card">
+                                    <h4>Average Score</h4>
+                                    <p>{{ quiz_stats.avg_percentage }}%</p>
+                                </div>
+                            </div>
+
+                            <h4>Recent Quiz History</h4>
+                            {% if recent_attempts %}
+                                <table class="notes-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject & Unit</th>
+                                            <th>Score</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for attempt in recent_attempts %}
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ attempt.unit.subject.code }}</strong><br>
+                                                    <span style="font-size: 11px; color: #6B7280;">Unit {{ attempt.unit.unit_number }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="score-badge {% if attempt.score == attempt.total_questions %}score-perfect{% else %}score-normal{% endif %}">
+                                                        {{ attempt.score }} / {{ attempt.total_questions }}
+                                                    </span>
+                                                </td>
+                                                <td style="font-size: 12px; color: #6B7280;">
+                                                    {{ attempt.completed_at|date:"M d, Y" }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p style="font-size: 14px; color: #6B7280; font-style: italic; margin: 10px 0 0 0;">No quizzes attempted yet. Try taking a quiz from the semester notes page!</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<script id="profile-units-json" type="application/json">
+[
+    {% for unit in all_units %}
+        {"id": {{ unit.id }}, "subjectId": {{ unit.subject.id }}, "text": "Unit {{ unit.unit_number }}: {{ unit.title|escapejs }}"}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
+<script>
+function filterProfileUnits() {
+    const subjId = document.getElementById('profile_subj_select').value;
+    const unitSelect = document.getElementById('unit_select');
+    const dataEl = document.getElementById('profile-units-json');
+    let allUnits = [];
+    if (dataEl) {
+        try { allUnits = JSON.parse(dataEl.textContent); } catch(e) {}
+    }
+    unitSelect.innerHTML = "";
+    if (!subjId) {
+        const opt = document.createElement('option');
+        opt.value = "";
+        opt.textContent = "-- Select Subject First --";
+        unitSelect.appendChild(opt);
+        unitSelect.disabled = true;
+        return;
+    }
+    unitSelect.disabled = false;
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = "";
+    defaultOpt.textContent = "-- Select Unit (1 to 5) --";
+    unitSelect.appendChild(defaultOpt);
+
+    const filtered = allUnits.filter(u => String(u.subjectId) === String(subjId));
+    filtered.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = u.text;
+        unitSelect.appendChild(opt);
+    });
+}
+</script>
+
+</body>
+</html>

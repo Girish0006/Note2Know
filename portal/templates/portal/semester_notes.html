@@ -1,0 +1,457 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester {{ semester_num }} Notes | Note2Know</title>
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=3">
+    <style>
+        .sem-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--yellow-primary);
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 8px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .back-nav:hover {
+            background: var(--yellow-primary);
+            color: var(--text-dark);
+        }
+
+        .sem-hero {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-light);
+            padding: 35px 30px;
+            border-radius: var(--radius-card);
+            margin-bottom: 30px;
+        }
+        .sem-hero h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-light);
+        }
+        .sem-hero p {
+            margin: 0 0 20px 0;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .sem-badges-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .sem-badge {
+            background: var(--bg-main);
+            border: 1px solid var(--border-yellow);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--yellow-primary);
+        }
+
+        .sem-switcher {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .sem-switch-btn {
+            background: var(--bg-main);
+            color: var(--text-light);
+            border: 1px solid var(--border-subtle);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .sem-switch-btn:hover,
+        .sem-switch-btn.active {
+            background: var(--yellow-primary);
+            color: var(--text-dark);
+            border-color: var(--yellow-primary);
+            font-weight: 700;
+        }
+
+        .dept-filter-bar {
+            background: var(--bg-surface);
+            padding: 16px 20px;
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .dept-filter-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .dept-filter-pill {
+            padding: 6px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            background: var(--bg-main);
+            color: var(--text-light);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s;
+        }
+        .dept-filter-pill:hover,
+        .dept-filter-pill.active {
+            background: var(--yellow-primary);
+            color: var(--text-dark);
+            border-color: var(--yellow-primary);
+            font-weight: 700;
+        }
+
+        .section-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subject-card-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-card);
+            padding: 24px;
+            margin-bottom: 25px;
+            transition: border-color 0.2s ease;
+        }
+        .subject-card-box:hover {
+            border-color: var(--yellow-primary);
+        }
+
+        .unit-item-row {
+            background: var(--bg-main);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .unit-info h4 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+        .unit-info p {
+            margin: 4px 0 0 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .unit-actions-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn-note-download {
+            background: var(--yellow-primary);
+            color: var(--text-dark);
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-note-download:hover {
+            background: var(--yellow-accent);
+        }
+        .btn-ai-summary {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-light);
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-ai-summary:hover {
+            background: var(--bg-surface);
+            color: var(--yellow-primary);
+            border-color: var(--yellow-primary);
+        }
+        .btn-quiz {
+            background: var(--bg-surface);
+            color: var(--yellow-accent);
+            border: 1px solid var(--border-yellow);
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-quiz:hover {
+            background: var(--yellow-primary);
+            color: var(--text-dark);
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-light);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px; right: 20px;
+            background: none; border: none;
+            font-size: 24px; color: var(--text-muted); cursor: pointer;
+        }
+    </style>
+</head>
+<body style="background: var(--bg-primary);">
+
+<div class="sem-page-container">
+
+    <a href="{% url 'dashboard' %}?dept={{ selected_dept }}&year={{ sem_year }}&sem={{ semester_num }}" class="back-nav">
+        <i class="fa-solid fa-arrow-left" style="margin-right: 4px;"></i> Back to Dashboard
+    </a>
+
+    {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for message in messages %}
+                <div style="padding: 12px 18px; border-radius: 12px; background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; font-weight: 600; font-size: 13px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Hero Header -->
+    <div class="sem-hero">
+        <h1><i class="fa-solid fa-book-bookmark" style="margin-right: 8px;"></i> Semester {{ semester_num }} Notes & Study Section</h1>
+        <p>Access notes, unit summaries, and quizzes for all subjects in Semester {{ semester_num }}.</p>
+        
+        <div class="sem-badges-row">
+            <span class="sem-badge"><i class="fa-solid fa-user-graduate" style="margin-right: 4px;"></i> {{ year_label }}</span>
+            <span class="sem-badge"><i class="fa-solid fa-book-open" style="margin-right: 4px;"></i> {{ sem_label }}</span>
+            <span class="sem-badge"><i class="fa-solid fa-building" style="margin-right: 4px;"></i> Department: {{ selected_dept|upper }}</span>
+            <span class="sem-badge"><i class="fa-solid fa-layer-group" style="margin-right: 4px;"></i> {{ subjects|length }} Subjects Available</span>
+        </div>
+
+        <div class="sem-switcher">
+            <span style="font-size: 13px; font-weight: 700; display: flex; align-items: center; margin-right: 6px;">Switch Semester:</span>
+            {% for s in all_semesters %}
+                <a href="{% url 'semester_notes' s.num %}?dept={{ selected_dept }}" class="sem-switch-btn {% if s.num == semester_num %}active{% endif %}">
+                    {{ s.label }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Department Filter Bar -->
+    <div class="dept-filter-bar">
+        <span class="dept-filter-label">Filter Department:</span>
+        {% for d in departments %}
+            <a href="{% url 'semester_notes' semester_num %}?dept={{ d.code }}" class="dept-filter-pill {% if selected_dept == d.code %}active{% endif %}">
+                {% if 'fa-' in d.icon %}<i class="{{ d.icon }}"></i>{% else %}{{ d.icon }}{% endif %} {{ d.code }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Subjects & Units Notes Section -->
+    <h2 class="section-header">
+        <i class="fa-solid fa-book-open" style="color: #2563EB; margin-right: 6px;"></i> Subjects & Notes for Semester {{ semester_num }}
+    </h2>
+
+    {% if subjects %}
+        {% for subject in subjects %}
+            <div class="subject-card-box">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 15px;">
+                    <div>
+                        <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700;">
+                            <i class="fa-solid fa-building" style="margin-right: 4px;"></i> {{ subject.department.code|default:selected_dept }}
+                        </span>
+                        <h2 style="margin: 8px 0 4px 0; font-size: 22px; color: #111827;">{{ subject.name }}</h2>
+                        <span style="color: #6B7280; font-size: 13px; font-weight: 500;">Subject Code: {{ subject.code }} | {{ subject.get_year_display }} | {{ subject.get_semester_display }}</span>
+                    </div>
+                    <a href="{% url 'subject_detail' subject.id %}" style="background: #2563EB; color: white; text-decoration: none; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;">
+                        View Full Subject Details <i class="fa-solid fa-arrow-right" style="margin-left: 4px;"></i>
+                    </a>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #E5E7EB; margin: 15px 0;">
+
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; color: #4B5563; text-transform: uppercase; letter-spacing: 0.5px;">Units & Notes:</h4>
+
+                {% if subject.units.all %}
+                    {% for unit in subject.units.all %}
+                        <div class="unit-item-row">
+                            <div class="unit-info">
+                                <h4>Unit {{ unit.unit_number }}: {{ unit.title }}</h4>
+                                <p>{{ unit.notes.all|length }} PDF Notes File(s) Uploaded</p>
+                            </div>
+                            <div class="unit-actions-group">
+                                {% if unit.notes.all %}
+                                    {% for note in unit.notes.all %}
+                                        <a href="{{ note.file.url }}" class="btn-note-download" target="_blank" download>
+                                            <i class="fa-solid fa-file-arrow-down"></i> Download {{ note.title|default:"Notes PDF" }}
+                                        </a>
+                                    {% endfor %}
+                                {% else %}
+                                    <span style="font-size: 12px; color: #9CA3AF; font-style: italic;">No PDF attached yet</span>
+                                {% endif %}
+
+                                <button class="btn-ai-summary" data-unit-id="{{ unit.id }}" data-unit-title="Unit {{ unit.unit_number }}: {{ unit.title|escapejs }}" onclick="fetchAiSummary(this.dataset.unitId, this.dataset.unitTitle)">
+                                    <i class="fa-solid fa-robot"></i> AI Summary
+                                </button>
+                                <a href="{% url 'unit_quiz' unit.id %}" class="btn-quiz">
+                                    <i class="fa-solid fa-file-pen"></i> Take Quiz
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #6B7280; font-size: 14px; font-style: italic; margin: 10px 0 0 0;">No units added for this subject yet.</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div style="background: white; border-radius: 20px; padding: 40px; text-align: center; border: 1px solid #E5E7EB;">
+            <div style="font-size: 40px; color: #2563EB; margin-bottom: 12px;"><i class="fa-solid fa-book-open"></i></div>
+            <h3 style="margin: 0 0 8px 0; color: #374151;">No Subjects Found for Semester {{ semester_num }}</h3>
+            <p style="color: #6B7280; font-size: 14px; margin: 0;">Try selecting a different department filter above or check another semester.</p>
+        </div>
+    {% endif %}
+
+    <!-- All Downloadable Notes Quick List -->
+    {% if notes %}
+        <div style="margin-top: 40px; background: white; border-radius: 20px; padding: 25px; border: 1px solid #E5E7EB;">
+            <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #111827;"><i class="fa-solid fa-file-lines" style="color: #2563EB; margin-right: 6px;"></i> All Downloadable Notes Files (Semester {{ semester_num }})</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                {% for note in notes %}
+                    <div style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <span style="font-size: 11px; font-weight: 700; color: #2563EB; background: #DBEAFE; padding: 2px 8px; border-radius: 6px;">
+                                {{ note.unit.subject.code }} | Unit {{ note.unit.unit_number }}
+                            </span>
+                            <h4 style="margin: 8px 0 4px 0; font-size: 14px; color: #1F2937;">{{ note.title }}</h4>
+                            <p style="margin: 0; font-size: 12px; color: #6B7280;">Subject: {{ note.unit.subject.name }}</p>
+                        </div>
+                        <a href="{{ note.file.url }}" class="btn-note-download" style="margin-top: 12px; justify-content: center;" target="_blank" download>
+                            <i class="fa-solid fa-file-arrow-down" style="margin-right: 6px;"></i> Download Notes PDF
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+<!-- AI Summary Modal -->
+<div id="aiModal" class="modal-overlay">
+    <div class="modal-card">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <h3 id="modalTitle" style="margin-top:0; color:#1E40AF;">AI Unit Summary</h3>
+        <hr style="border:0; border-top:1px solid #E5E7EB; margin:12px 0;">
+        <div id="modalBody" style="font-size:14px; line-height:1.6; color:#374151;">
+            <em>Loading summary...</em>
+        </div>
+    </div>
+</div>
+
+<script>
+    function fetchAiSummary(unitId, title) {
+        document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-robot" style="margin-right: 6px;"></i> AI Study Notes Summary — ' + title;
+        document.getElementById('modalBody').innerHTML = '<em>Note2Know AI is generating comprehensive unit summary notes... Please wait.</em>';
+        document.getElementById('aiModal').style.display = 'flex';
+
+        fetch('/unit/' + unitId + '/summary/')
+            .then(res => res.json())
+            .then(data => {
+                if(data.summary) {
+                    let formatted = data.summary
+                        .replace(/\n\n/g, '</p><p>')
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    document.getElementById('modalBody').innerHTML = '<p>' + formatted + '</p>';
+                } else if(data.error) {
+                    document.getElementById('modalBody').innerHTML = '<span style="color:#DC2626;">' + data.error + '</span>';
+                }
+            })
+            .catch(err => {
+                document.getElementById('modalBody').innerHTML = '<span style="color:#DC2626;">Failed to generate AI summary notes.</span>';
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('aiModal').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

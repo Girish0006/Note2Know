@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ unit.title }} Quiz</title>
+
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}">
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-cube"></i></div>
+            <h2>Note2Know</h2>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="menu"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="{% url 'assistant' %}" class="menu"><i class="fa-solid fa-robot"></i> AI Assistant</a>
+        <a href="{% url 'progress' %}" class="menu"><i class="fa-solid fa-chart-line"></i> Progress</a>
+    </aside>
+
+    <main class="content">
+
+        <div class="container">
+
+            <div class="welcome-card">
+
+                <h1>{{ unit.title }}</h1>
+
+                <p>Answer all questions and submit your quiz.</p>
+
+            </div>
+
+            <br>
+
+            {% if submitted %}
+
+            <div class="welcome-card">
+
+                <h1><i class="fa-solid fa-trophy" style="color: var(--yellow-primary); margin-right: 8px;"></i> Quiz Completed</h1>
+
+                <h2>{{ score }} / {{ questions|length }}</h2>
+
+                <br>
+
+                <a class="button" href="{% url 'progress' %}">
+                    View Progress
+                </a>
+
+            </div>
+
+            {% else %}
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {% for question in questions %}
+
+                <div class="subject-card">
+
+                    <h3>
+                        Question {{ forloop.counter }}
+                    </h3>
+
+                    <p>{{ question.question_text }}</p>
+
+                    <hr><br>
+
+                    <label>
+                        <input type="radio"
+                               name="question_{{ question.id }}"
+                               value="A">
+                        {{ question.option_a }}
+                    </label>
+
+                    <br><br>
+
+                    <label>
+                        <input type="radio"
+                               name="question_{{ question.id }}"
+                               value="B">
+                        {{ question.option_b }}
+                    </label>
+
+                    <br><br>
+
+                    <label>
+                        <input type="radio"
+                               name="question_{{ question.id }}"
+                               value="C">
+                        {{ question.option_c }}
+                    </label>
+
+                    <br><br>
+
+                    <label>
+                        <input type="radio"
+                               name="question_{{ question.id }}"
+                               value="D">
+                        {{ question.option_d }}
+                    </label>
+
+                </div>
+
+                <br>
+
+                {% endfor %}
+
+                <button class="button" type="submit">
+
+                    Submit Quiz
+
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>
