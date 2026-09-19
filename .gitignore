@@ -45,3 +45,9 @@ media/
 *.swp
 *.swo
 .DS_Store
+
+# Archives & Backups
+*.zip
+*.tar.gz
+*.7z
+
