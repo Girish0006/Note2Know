@@ -1,0 +1,237 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit {{ unit.unit_number }} Notes | {{ subject.name }} | Note2Know LMS</title>
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=11">
+    <style>
+        .breadcrumb-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 24px;
+            background: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            flex-wrap: wrap;
+        }
+        .breadcrumb-bar a {
+            color: #2563EB;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb-bar a:hover {
+            color: #1D4ED8;
+            text-decoration: underline;
+        }
+        .breadcrumb-separator {
+            color: #94A3B8;
+            font-size: 11px;
+        }
+        .unit-hero {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 28px 32px;
+            margin-bottom: 30px;
+            color: #FFFFFF;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+        }
+        .note-row-apple {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 18px;
+            padding: 20px 24px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            flex-wrap: wrap;
+        }
+        .note-row-apple:hover {
+            border-color: #3B82F6;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+        .btn-view-pdf {
+            background: #2563EB;
+            color: #FFFFFF;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-view-pdf:hover {
+            background: #1D4ED8;
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+        .btn-download-pdf {
+            background: #F1F5F9;
+            color: #334155;
+            border: 1px solid #CBD5E1;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-download-pdf:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
+            <h2>Note2Know</h2>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="menu">
+            <i class="fa-solid fa-house"></i> Dashboard
+        </a>
+
+        <a href="{% url 'academic_year' %}" class="menu active">
+            <i class="fa-solid fa-graduation-cap"></i> My Program
+        </a>
+
+        {% if is_staff_user %}
+            <a href="{% url 'staff_dashboard' %}" class="menu" style="background: rgba(37, 99, 235, 0.15); color: #3B82F6; font-weight: 700;">
+                <i class="fa-solid fa-chalkboard-user"></i> Staff Portal
+            </a>
+        {% endif %}
+
+        <a href="{% url 'assistant' %}" class="menu">
+            <i class="fa-solid fa-robot"></i> AI Assistant
+        </a>
+
+        <a href="{% url 'progress' %}" class="menu">
+            <i class="fa-solid fa-chart-line"></i> Progress
+        </a>
+
+        <a href="{% url 'profile' %}" class="menu">
+            <i class="fa-solid fa-user"></i> My Profile
+        </a>
+
+        <a href="{% url 'logout' %}" class="menu" style="color: #EF4444; margin-top: auto;">
+            <i class="fa-solid fa-right-from-bracket" style="color: #EF4444;"></i> Log Out
+        </a>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+
+            <button type="button" class="back-nav-arrow" data-fallback="{% url 'subject_detail' subject.id %}" onclick="handleSmartBack(this)" title="Go Back"><i class="fa-solid fa-arrow-left"></i></button>
+
+            {% if messages %}
+                <div style="margin-bottom: 25px;">
+                    {% for message in messages %}
+                        <div style="padding: 14px 20px; border-radius: 14px; background: rgba(153, 27, 27, 0.3); color: #FCA5A5; border: 1px solid #DC2626; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Breadcrumb Navigation -->
+            <nav class="breadcrumb-bar">
+                <a href="{% url 'dashboard' %}"><i class="fa-solid fa-house" style="margin-right: 4px;"></i> Dashboard</a>
+                <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <a href="{% url 'academic_year' %}">{{ subject.department.code }}</a>
+                <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <a href="{% url 'academic_year' %}">{{ year_label }}</a>
+                <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <a href="{% url 'semester_detail' subject.semester %}">{{ sem_label }}</a>
+                <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <a href="{% url 'subject_detail' subject.id %}">{{ subject.name }}</a>
+                <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <span style="color: #0F172A; font-weight: 700;">Unit {{ unit.unit_number }}</span>
+            </nav>
+
+            <div class="unit-hero">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <span style="font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #38BDF8; display: block; margin-bottom: 4px;">LECTURE NOTES</span>
+                        <h1 style="font-size: 24px; font-weight: 800; margin: 0 0 6px 0; color: #F8FAFC;">{{ subject.name }}</h1>
+                        <p style="margin: 0; font-size: 14.5px; color: #94A3B8;">Unit {{ unit.unit_number }}: <strong style="color: #F8FAFC;">{{ unit.title }}</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <h2 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;"><i class="fa-solid fa-file-pdf" style="color: #DC2626; margin-right: 6px;"></i> Available Notes</h2>
+                <p style="color: #64748B; font-size: 14px; margin: 0;">Read or download unit notes for Unit {{ unit.unit_number }}.</p>
+            </div>
+
+            <!-- Notes PDF List -->
+            <div>
+                {% for note in notes %}
+                    <div class="note-row-apple">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 48px; height: 48px; border-radius: 14px; background: #FEF2F2; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #DC2626;">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 16.5px; font-weight: 700; color: #0F172A; margin: 0 0 4px 0;">{{ note.title }}</h3>
+                                <p style="font-size: 12.5px; color: #64748B; margin: 0;">Uploaded: {{ note.uploaded_at|date:"M d, Y" }} | PDF Document</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="{{ note.file.url }}" target="_blank" class="btn-view-pdf">
+                                <i class="fa-solid fa-eye"></i> View PDF
+                            </a>
+                            <a href="{{ note.file.url }}" download class="btn-download-pdf">
+                                <i class="fa-solid fa-download"></i> Download PDF
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div style="background: #FFFFFF; border: 1.5px dashed #CBD5E1; border-radius: 20px; padding: 45px; text-align: center;">
+                        <i class="fa-solid fa-folder-open" style="font-size: 48px; color: #94A3B8; margin-bottom: 12px;"></i>
+                        <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">No Notes Uploaded Yet</h3>
+                        <p style="color: #64748B; font-size: 14px; margin: 0;">Faculty members have not uploaded notes for Unit {{ unit.unit_number }} yet.</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+function handleSmartBack(el) {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.history.back();
+    } else {
+        window.location.href = el.getAttribute('data-fallback') || '/';
+    }
+}
+</script>
+</body>
+</html>

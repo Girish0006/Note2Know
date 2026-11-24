@@ -1,13 +1,42 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note2Know</title>
+
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}">
 </head>
 <body>
-    <h1>Welcome to Note2Know</h1>
-    <p>Turn notes into knowledge.</p>
 
-    <h2>Learn smarter, unit by unit.</h2>
-    <p>Study notes, take AI quizzes, ask doubts, track your progress, and earn badges.</p>
+<nav class="topbar">
+    <div class="logo">📘 Note2Know</div>
+
+    <div>
+        <a href="{% url 'login' %}" class="button">
+            Login
+        </a>
+    </div>
+</nav>
+
+<section class="hero">
+
+    <span class="tag">
+        SMART LEARNING PLATFORM
+    </span>
+
+    <h1>Welcome to Note2Know</h1>
+
+    <p>
+        Turn notes into knowledge with AI-powered learning.
+    </p>
+
+    <a href="{% url 'login' %}" class="button">
+        Get Started →
+    </a>
+
+</section>
+
 </body>
 </html>

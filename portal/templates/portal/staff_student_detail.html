@@ -1,0 +1,619 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student ERP Profile | {{ student_user.get_full_name|default:student_user.username }} | Note2Know</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=11">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .profile-header-card {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 40%, #1E40AF 100%);
+            color: #FFFFFF;
+            padding: 32px;
+            border-radius: 24px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 24px;
+            position: relative;
+        }
+        .student-header-info {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            z-index: 1;
+        }
+        .header-avatar {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            font-weight: 800;
+            color: #FFFFFF;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+        .header-meta h1 {
+            margin: 0 0 4px 0;
+            font-size: 26px;
+            font-weight: 800;
+        }
+        .header-meta p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .badge-tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #F8FAFC;
+        }
+        .progress-circle-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 16px 22px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+        }
+        /* 7-Tab Navigation */
+        .tab-nav-bar {
+            display: flex;
+            gap: 8px;
+            background: #FFFFFF;
+            padding: 8px;
+            border-radius: 18px;
+            border: 1px solid #E2E8F0;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+        }
+        .tab-btn {
+            background: transparent;
+            color: #64748B;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .tab-btn:hover {
+            color: #2563EB;
+            background: #F8FAFC;
+        }
+        .tab-btn.active {
+            background: #0F172A;
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+        }
+        .tab-content-pane {
+            display: none;
+        }
+        .tab-content-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+        .info-item {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 16px 20px;
+        }
+        .info-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0F172A;
+        }
+        /* Timeline */
+        .timeline-list {
+            position: relative;
+            padding-left: 24px;
+            border-left: 2px solid #E2E8F0;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2563EB;
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 0 0 2px #93C5FD;
+        }
+        .tag-pill {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .tag-excellent { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+        .tag-warning { background: #FEF2F2; color: #B91C1C; border: 1px solid #FCA5A5; }
+        .tag-info { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- Dark Navigation Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-graduation-cap"></i></div>
+            <h2>Note2Know <small style="display:block; font-size:11px; color:#38BDF8; font-weight:700;">FACULTY ERP</small></h2>
+        </div>
+
+        <a href="{% url 'staff_dashboard' %}" class="menu">
+            <i class="fa-solid fa-chart-pie"></i> ERP Dashboard
+        </a>
+
+        <a href="{% url 'manage_students' %}" class="menu active">
+            <i class="fa-solid fa-users-gear"></i> Manage Students
+        </a>
+
+        <a href="{% url 'assistant' %}" class="menu">
+            <i class="fa-solid fa-robot"></i> AI Study Assistant
+        </a>
+
+        <a href="{% url 'profile' %}" class="menu">
+            <i class="fa-solid fa-user-gear"></i> Account Settings
+        </a>
+
+        <a href="{% url 'logout' %}" class="menu" style="color: #EF4444; margin-top: auto;">
+            <i class="fa-solid fa-right-from-bracket" style="color: #EF4444;"></i> Log Out
+        </a>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+
+            <!-- Premium Back Navigation Button -->
+            <button type="button" class="back-nav-arrow" data-fallback="{% url 'manage_students' %}" onclick="handleSmartBack(this)" title="Go Back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            {% if messages %}
+                <div style="margin-bottom: 25px;">
+                    {% for message in messages %}
+                        <div style="padding: 14px 20px; border-radius: 14px; background: rgba(153, 27, 27, 0.1); color: #DC2626; border: 1px solid #FCA5A5; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-circle-info"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Breadcrumb Navigation -->
+            <nav class="breadcrumb-bar">
+                <a href="{% url 'staff_dashboard' %}"><i class="fa-solid fa-house" style="margin-right: 4px;"></i> Dashboard</a>
+                <span style="color: #94A3B8;"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></span>
+                <a href="{% url 'manage_students' %}">Manage Students</a>
+                <span style="color: #94A3B8;"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></span>
+                <span style="color: #0F172A; font-weight: 700;">{{ student_user.get_full_name|default:student_user.username }}</span>
+            </nav>
+
+            <!-- Student Top Hero Header -->
+            <div class="profile-header-card">
+                <div class="student-header-info">
+                    <div class="header-avatar">
+                        {{ student_user.first_name|default:student_user.username|slice:":1"|upper }}
+                    </div>
+                    <div class="header-meta">
+                        <h1>{{ student_user.get_full_name|default:student_user.username }}</h1>
+                        <p>
+                            <span>USN: <strong style="color:#38BDF8;">{{ usn }}</strong></span>
+                            <span class="badge-tag"><i class="fa-solid fa-building"></i> {{ student_profile.department.code|default:"BCA" }}</span>
+                            <span class="badge-tag"><i class="fa-solid fa-graduation-cap"></i> Year {{ student_profile.year }}</span>
+                            <span class="badge-tag"><i class="fa-solid fa-layer-group"></i> {{ section }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div style="z-index:1; display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                    <div class="progress-circle-box">
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#94A3B8;">OVERALL PROGRESS</div>
+                            <div style="font-size:26px; font-weight:800; color:#FFFFFF;">{{ overall_progress }}%</div>
+                        </div>
+                        <i class="fa-solid fa-circle-check" style="font-size:32px; color:#10B981;"></i>
+                    </div>
+
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" class="btn-submit" onclick="switchTab('tab-notifications')" style="background:linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);">
+                            <i class="fa-solid fa-paper-plane"></i> Send Notification
+                        </button>
+                        <button type="button" class="btn-submit" onclick="switchTab('tab-remarks')" style="background:linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);">
+                            <i class="fa-solid fa-comment-dots"></i> Add Remark
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7-Tab Navigation Bar -->
+            <div class="tab-nav-bar">
+                <button type="button" class="tab-btn active" onclick="switchTab('tab-info')" id="btn-tab-info">
+                    <i class="fa-solid fa-user"></i> 1. Information
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('tab-login')" id="btn-tab-login">
+                    <i class="fa-solid fa-clock-rotate-left"></i> 2. Login Activity
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('tab-progress')" id="btn-tab-progress">
+                    <i class="fa-solid fa-chart-line"></i> 3. Academic Progress
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('tab-learning')" id="btn-tab-learning">
+                    <i class="fa-solid fa-book-open-reader"></i> 4. Learning Activity
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('tab-quizzes')" id="btn-tab-quizzes">
+                    <i class="fa-solid fa-trophy"></i> 5. Quiz Performance
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('tab-remarks')" id="btn-tab-remarks">
+                    <i class="fa-solid fa-comments"></i> 6. Faculty Remarks
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab('tab-notifications')" id="btn-tab-notifications">
+                    <i class="fa-solid fa-bell"></i> 7. Notifications
+                </button>
+            </div>
+
+            <!-- TAB 1: Student Information -->
+            <div id="tab-info" class="tab-content-pane active">
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-id-card"></i> Student Identity & Academic Profile</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value">{{ student_user.get_full_name|default:student_user.username }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">USN / University ID</div>
+                            <div class="info-value" style="color:#2563EB;">{{ usn }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value">{{ student_user.email|default:"student@note2know.edu" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Contact Phone</div>
+                            <div class="info-value">{{ phone }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Enrolled Department</div>
+                            <div class="info-value">{{ student_profile.department.name|default:"Computer Applications" }} ({{ student_profile.department.code|default:"BCA" }})</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Academic Year</div>
+                            <div class="info-value">{{ student_profile.year }}nd Year</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Semester</div>
+                            <div class="info-value">Semester III & IV</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Assigned Section</div>
+                            <div class="info-value">{{ section }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Enrollment Date</div>
+                            <div class="info-value">{{ student_profile.enrollment_date|date:"d M Y"|default:"12 Aug 2024" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Account Status</div>
+                            <div class="info-value" style="color:#10B981;"><i class="fa-solid fa-circle-check"></i> Active Student</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Login Activity -->
+            <div id="tab-login" class="tab-content-pane">
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-shield-halved"></i> Login Session Activity & Device Telemetry</h3>
+                    <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:24px;">
+                        <div class="info-item" style="flex:1;">
+                            <div class="info-label">Last Login</div>
+                            <div class="info-value">{{ student_user.last_login|date:"d M Y, h:i A"|default:"Active Today" }}</div>
+                        </div>
+                        <div class="info-item" style="flex:1;">
+                            <div class="info-label">Device & OS</div>
+                            <div class="info-value">Windows 11 / Chrome 124</div>
+                        </div>
+                        <div class="info-item" style="flex:1;">
+                            <div class="info-label">Total Authentications</div>
+                            <div class="info-value">48 Sessions</div>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size:16px; font-weight:700; color:#0F172A; margin-bottom:16px;">Authentication Log History</h4>
+                    <div class="timeline-list">
+                        <div class="timeline-item">
+                            <div style="font-weight:700; color:#0F172A;">Logged in via Password / Face ID</div>
+                            <div style="font-size:12.5px; color:#64748B;">{{ student_user.last_login|date:"d M Y, h:i A"|default:"Today, 09:30 AM" }} • IP: 192.168.1.45</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div style="font-weight:700; color:#0F172A;">Interactive Quiz Attempt Completed</div>
+                            <div style="font-size:12.5px; color:#64748B;">Yesterday, 04:15 PM • Duration: 14 mins</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div style="font-weight:700; color:#0F172A;">Downloaded Lecture PDF: Unit 2 Operating Systems</div>
+                            <div style="font-size:12.5px; color:#64748B;">20 Sep 2026, 11:20 AM • Chrome Browser</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Academic Progress -->
+            <div id="tab-progress" class="tab-content-pane">
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-chart-line"></i> Academic Unit Progress & Performance Breakdown</h3>
+                    
+                    <div class="info-grid" style="margin-bottom:25px;">
+                        <div class="info-item">
+                            <div class="info-label">Completed Units</div>
+                            <div class="info-value" style="color:#10B981;">{{ completed_units_count }} Units</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Pending Units</div>
+                            <div class="info-value" style="color:#F59E0B;">{{ pending_units_count }} Units</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Highest Score</div>
+                            <div class="info-value" style="color:#2563EB;">{{ highest_score }}%</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Lowest Score</div>
+                            <div class="info-value" style="color:#EF4444;">{{ lowest_score }}%</div>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size:16px; font-weight:700; color:#0F172A; margin-bottom:16px;">Course Subject Breakdown</h4>
+                    {% for subj in assigned_subjects %}
+                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:16px; margin-bottom:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <strong style="color:#0F172A; font-size:15px;">[{{ subj.code }}] {{ subj.name }}</strong>
+                                    <div style="font-size:12.5px; color:#64748B;">5 Course Units • Semester {{ subj.semester }}</div>
+                                </div>
+                                <span class="tag-pill tag-excellent">85% Mastery</span>
+                            </div>
+                            <div class="progress-bar-track" style="margin-top:10px;">
+                                <div class="progress-bar-fill fill-high" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- TAB 4: Learning Activity -->
+            <div id="tab-learning" class="tab-content-pane">
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-book-open-reader"></i> Learning Activity Telemetry</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Notes Viewed</div>
+                            <div class="info-value">34 Notes</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Notes Downloaded</div>
+                            <div class="info-value">18 PDFs</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">AI Assistant Chats</div>
+                            <div class="info-value">26 Queries</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Quiz Attempts</div>
+                            <div class="info-value">{{ total_attempts }} Attempts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: Quiz Performance -->
+            <div id="tab-quizzes" class="tab-content-pane">
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-trophy"></i> Quiz Performance & Assessment History</h3>
+                    {% if attempts %}
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse; font-size:14px; text-align:left;">
+                                <thead>
+                                    <tr style="border-bottom:2px solid #E2E8F0; color:#64748B;">
+                                        <th style="padding:12px;">Subject / Unit</th>
+                                        <th style="padding:12px;">Score</th>
+                                        <th style="padding:12px;">Percentage</th>
+                                        <th style="padding:12px;">Date</th>
+                                        <th style="padding:12px; text-align:right;">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for att in attempts %}
+                                        <tr style="border-bottom:1px solid #F1F5F9;">
+                                            <td style="padding:14px 12px; font-weight:700; color:#0F172A;">
+                                                [{{ att.unit.subject.code }}] Unit {{ att.unit.unit_number }}: {{ att.unit.title }}
+                                            </td>
+                                            <td style="padding:14px 12px;">{{ att.score }} / {{ att.total_questions }}</td>
+                                            <td style="padding:14px 12px; font-weight:700; color:#2563EB;">
+                                                {% widthratio att.score att.total_questions 100 %}%
+                                            </td>
+                                            <td style="padding:14px 12px; color:#64748B;">{{ att.completed_at|date:"d M Y, h:i A" }}</td>
+                                            <td style="padding:14px 12px; text-align:right;">
+                                                {% widthratio att.score att.total_questions 100 as pct %}
+                                                {% if pct >= "40" %}
+                                                    <span class="tag-pill tag-excellent">PASS</span>
+                                                {% else %}
+                                                    <span class="tag-pill tag-warning">FAIL</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p style="color:#64748B; margin:0;">No quiz attempts recorded yet for this student.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- TAB 6: Faculty Remarks -->
+            <div id="tab-remarks" class="tab-content-pane">
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-comment-dots"></i> Add Faculty Remark</h3>
+                    <form method="POST" action="{% url 'add_faculty_remark' student_user.id %}" style="margin-bottom:25px;">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>Remark Tag</label>
+                            <select name="tag" class="form-control">
+                                <option value="Excellent Progress">Excellent Progress</option>
+                                <option value="Needs Improvement">Needs Improvement</option>
+                                <option value="Focus on Unit 3">Focus on Unit 3</option>
+                                <option value="Practice More Quizzes">Practice More Quizzes</option>
+                                <option value="General Feedback">General Feedback</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Faculty Remark Details</label>
+                            <textarea name="remark_text" class="form-control" rows="3" placeholder="Enter constructive academic advice or performance observations..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">
+                            <i class="fa-solid fa-paper-plane"></i> Post Remark
+                        </button>
+                    </form>
+
+                    <h4 style="font-size:16px; font-weight:700; color:#0F172A; margin-bottom:16px;">Remark History</h4>
+                    {% for rm in remarks %}
+                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:18px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <span class="tag-pill tag-info" style="margin-bottom:8px;">{{ rm.tag }}</span>
+                                <p style="margin:6px 0; color:#0F172A; font-size:14.5px;">{{ rm.remark_text }}</p>
+                                <div style="font-size:12px; color:#64748B;">
+                                    Posted by <strong>{{ rm.faculty.get_full_name|default:rm.faculty.username }}</strong> on {{ rm.created_at|date:"d M Y, h:i A" }}
+                                </div>
+                            </div>
+                            <a href="{% url 'delete_faculty_remark' rm.id %}" style="color:#EF4444; font-size:14px;" title="Delete Remark" onclick="return confirm('Delete this remark?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                    {% empty %}
+                        <p style="color:#64748B; margin:0;">No faculty remarks posted for this student yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- TAB 7: Notifications -->
+            <div id="tab-notifications" class="tab-content-pane">
+                <div class="card-box">
+                    <h3><i class="fa-solid fa-bell"></i> Send Direct Faculty Notification / Announcement</h3>
+                    <form method="POST" action="{% url 'send_faculty_notification' student_user.id %}" style="margin-bottom:25px;">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>Notification Category</label>
+                            <select name="notification_type" class="form-control">
+                                <option value="Assignment Reminder">Assignment Reminder</option>
+                                <option value="Quiz Reminder">Quiz Reminder</option>
+                                <option value="Exam Reminder">Exam Reminder</option>
+                                <option value="Study Reminder">Study Reminder</option>
+                                <option value="General Announcement">General Announcement</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Notification Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Unit 3 Quiz Deadline Extended" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Message Content</label>
+                            <textarea name="message" class="form-control" rows="3" placeholder="Enter notification text for the student..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">
+                            <i class="fa-solid fa-bullhorn"></i> Dispatch Notification
+                        </button>
+                    </form>
+
+                    <h4 style="font-size:16px; font-weight:700; color:#0F172A; margin-bottom:16px;">Notification History</h4>
+                    {% for nt in notifications %}
+                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:18px; margin-bottom:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <strong style="color:#0F172A; font-size:15px;">[{{ nt.notification_type }}] {{ nt.title }}</strong>
+                                <span style="font-size:12px; color:#64748B;">{{ nt.created_at|date:"d M Y, h:i A" }}</span>
+                            </div>
+                            <p style="margin:0; color:#334155; font-size:14px;">{{ nt.message }}</p>
+                        </div>
+                    {% empty %}
+                        <p style="color:#64748B; margin:0;">No notifications dispatched to this student yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content-pane').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+    const selectedPane = document.getElementById(tabId);
+    if (selectedPane) selectedPane.classList.add('active');
+
+    const selectedBtn = document.getElementById('btn-' + tabId);
+    if (selectedBtn) selectedBtn.classList.add('active');
+}
+
+function handleSmartBack(el) {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.history.back();
+    } else {
+        window.location.href = el.getAttribute('data-fallback') || '/';
+    }
+}
+</script>
+</body>
+</html>

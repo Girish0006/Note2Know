@@ -1,0 +1,340 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students | Faculty ERP | Note2Know</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=11">
+    <style>
+        .filter-bar-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 22px 26px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            align-items: flex-end;
+        }
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 22px;
+            margin-top: 20px;
+        }
+        .student-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+        .student-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.12);
+            border-color: #93C5FD;
+        }
+        .student-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .student-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #FFFFFF;
+            font-weight: 700;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+            object-fit: cover;
+        }
+        .student-name {
+            font-size: 17px;
+            font-weight: 800;
+            color: #0F172A;
+            margin: 0 0 2px 0;
+        }
+        .student-usn {
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748B;
+            letter-spacing: 0.5px;
+        }
+        .progress-bar-track {
+            height: 8px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0 14px 0;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        .fill-high { background: linear-gradient(90deg, #10B981, #059669); }
+        .fill-mid { background: linear-gradient(90deg, #3B82F6, #1D4ED8); }
+        .fill-low { background: linear-gradient(90deg, #EF4444, #DC2626); }
+
+        .badge-success { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+        .badge-danger { background: #FEF2F2; color: #B91C1C; border: 1px solid #FCA5A5; }
+        .badge-primary { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+        .badge-secondary { background: #F8FAFC; color: #475569; border: 1px solid #E2E8F0; }
+
+        .btn-view-profile {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            color: #FFFFFF;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 13.5px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+            margin-top: 15px;
+        }
+        .btn-view-profile:hover {
+            background: linear-gradient(135deg, #1E293B 0%, #2563EB 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- Dark Navigation Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-graduation-cap"></i></div>
+            <h2>Note2Know <small style="display:block; font-size:11px; color:#38BDF8; font-weight:700;">FACULTY ERP</small></h2>
+        </div>
+
+        <a href="{% url 'staff_dashboard' %}" class="menu">
+            <i class="fa-solid fa-chart-pie"></i> ERP Dashboard
+        </a>
+
+        <a href="{% url 'manage_students' %}" class="menu active">
+            <i class="fa-solid fa-users-gear"></i> Manage Students
+        </a>
+
+        <a href="{% url 'assistant' %}" class="menu">
+            <i class="fa-solid fa-robot"></i> AI Study Assistant
+        </a>
+
+        <a href="{% url 'profile' %}" class="menu">
+            <i class="fa-solid fa-user-gear"></i> Account Settings
+        </a>
+
+        <a href="{% url 'logout' %}" class="menu" style="color: #EF4444; margin-top: auto;">
+            <i class="fa-solid fa-right-from-bracket" style="color: #EF4444;"></i> Log Out
+        </a>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+
+            <!-- Premium Back Navigation Button -->
+            <button type="button" class="back-nav-arrow" data-fallback="{% url 'staff_dashboard' %}" onclick="handleSmartBack(this)" title="Go Back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            {% if messages %}
+                <div style="margin-bottom: 25px;">
+                    {% for message in messages %}
+                        <div style="padding: 14px 20px; border-radius: 14px; background: rgba(153, 27, 27, 0.1); color: #DC2626; border: 1px solid #FCA5A5; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-circle-info"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Breadcrumb Navigation -->
+            <nav class="breadcrumb-bar">
+                <a href="{% url 'staff_dashboard' %}"><i class="fa-solid fa-house" style="margin-right: 4px;"></i> Dashboard</a>
+                <span style="color: #94A3B8;"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></span>
+                <span style="color: #2563EB;">Manage Students</span>
+                <span style="color: #94A3B8;"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></span>
+                <span style="color: #0F172A; font-weight: 700;">Student Directory List</span>
+            </nav>
+
+            <div style="margin-bottom: 24px;">
+                <h1 style="font-size: 28px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">Student ERP Management Directory</h1>
+                <p style="color: #64748B; font-size: 15px; margin: 0;">Filter, search, monitor progress, and review individual student academic profiles.</p>
+            </div>
+
+            <!-- Top Filter Bar Form -->
+            <div class="filter-bar-card">
+                <form method="GET" class="filter-grid">
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#64748B; display:block; margin-bottom:4px; text-transform:uppercase;">Department</label>
+                        <select name="department" class="form-control" style="font-size:13.5px; padding:10px 12px;">
+                            <option value="">All Departments</option>
+                            {% for d in departments %}
+                                <option value="{{ d.id }}" {% if selected_dept == d.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ d.code }} - {{ d.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#64748B; display:block; margin-bottom:4px; text-transform:uppercase;">Academic Year</label>
+                        <select name="year" class="form-control" style="font-size:13.5px; padding:10px 12px;">
+                            <option value="">All Years</option>
+                            <option value="1" {% if selected_year == "1" %}selected{% endif %}>1st Year</option>
+                            <option value="2" {% if selected_year == "2" %}selected{% endif %}>2nd Year</option>
+                            <option value="3" {% if selected_year == "3" %}selected{% endif %}>3rd Year</option>
+                            <option value="4" {% if selected_year == "4" %}selected{% endif %}>4th Year</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#64748B; display:block; margin-bottom:4px; text-transform:uppercase;">Semester</label>
+                        <select name="semester" class="form-control" style="font-size:13.5px; padding:10px 12px;">
+                            <option value="">All Semesters</option>
+                            <option value="1" {% if selected_sem == "1" %}selected{% endif %}>Semester I</option>
+                            <option value="2" {% if selected_sem == "2" %}selected{% endif %}>Semester II</option>
+                            <option value="3" {% if selected_sem == "3" %}selected{% endif %}>Semester III</option>
+                            <option value="4" {% if selected_sem == "4" %}selected{% endif %}>Semester IV</option>
+                            <option value="5" {% if selected_sem == "5" %}selected{% endif %}>Semester V</option>
+                            <option value="6" {% if selected_sem == "6" %}selected{% endif %}>Semester VI</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#64748B; display:block; margin-bottom:4px; text-transform:uppercase;">Assigned Subject</label>
+                        <select name="subject" class="form-control" style="font-size:13.5px; padding:10px 12px;">
+                            <option value="">All Handled Subjects</option>
+                            {% for subj in handled_subjects %}
+                                <option value="{{ subj.id }}" {% if selected_subject == subj.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ subj.code }} - {{ subj.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#64748B; display:block; margin-bottom:4px; text-transform:uppercase;">Section</label>
+                        <select name="section" class="form-control" style="font-size:13.5px; padding:10px 12px;">
+                            <option value="all">All Sections</option>
+                            <option value="A" {% if selected_section == "A" %}selected{% endif %}>Section A</option>
+                            <option value="B" {% if selected_section == "B" %}selected{% endif %}>Section B</option>
+                            <option value="C" {% if selected_section == "C" %}selected{% endif %}>Section C</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#64748B; display:block; margin-bottom:4px; text-transform:uppercase;">Performance Status</label>
+                        <select name="status" class="form-control" style="font-size:13.5px; padding:10px 12px;">
+                            <option value="all">All Statuses</option>
+                            <option value="active" {% if selected_status == "active" %}selected{% endif %}>Active Today</option>
+                            <option value="below_40" {% if selected_status == "below_40" %}selected{% endif %}>Below 40%</option>
+                            <option value="top_performers" {% if selected_status == "top_performers" %}selected{% endif %}>Top Performers (85%+)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size:12px; font-weight:700; color:#64748B; display:block; margin-bottom:4px; text-transform:uppercase;">Search Student / USN</label>
+                        <input type="text" name="search" value="{{ search_q }}" class="form-control" placeholder="Name or USN..." style="font-size:13.5px; padding:10px 12px;">
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn-submit" style="width: 100%; height: 42px; justify-content: center;">
+                            <i class="fa-solid fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Student Grid List -->
+            {% if student_records %}
+                <div class="student-grid">
+                    {% for item in student_records %}
+                        <div class="student-card">
+                            <div>
+                                <div class="student-header">
+                                    <div class="student-avatar">
+                                        {{ item.user.first_name|default:item.user.username|slice:":1"|upper }}
+                                    </div>
+                                    <div style="flex:1;">
+                                        <h3 class="student-name">{{ item.user.get_full_name|default:item.user.username }}</h3>
+                                        <div class="student-usn">USN: {{ item.usn }}</div>
+                                        <div style="font-size:12px; color:#64748B; margin-top:2px;">
+                                            <span style="font-weight:700; color:#2563EB;">{{ item.dept_code }}</span> • {{ item.year_label }} • Sec {{ item.section }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:#334155; margin-top:12px;">
+                                    <span>Course Progress</span>
+                                    <span>{{ item.progress_pct }}%</span>
+                                </div>
+                                <div class="progress-bar-track">
+                                    <div class="progress-bar-fill {% if item.progress_pct >= 80 %}fill-high{% elif item.progress_pct >= 45 %}fill-mid{% else %}fill-low{% endif %}" style="width: calc({{ item.progress_pct }} * 1%);"></div>
+                                </div>
+
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:12.5px;">
+                                    <span style="color:#64748B;">Avg Quiz Score: <strong style="color:#0F172A;">{{ item.avg_quiz_score }}%</strong></span>
+                                    <span class="badge-tag {{ item.status_class }}" style="padding:4px 10px; font-size:11px;">
+                                        {{ item.status_badge }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="{% url 'staff_student_detail' item.user.id %}" class="btn-view-profile">
+                                    View Student Profile <i class="fa-solid fa-chevron-right" style="font-size:11px;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="background:#FFFFFF; border:1.5px dashed #CBD5E1; border-radius:20px; padding:50px; text-align:center; margin-top:20px;">
+                    <i class="fa-solid fa-users-slash" style="font-size:48px; color:#94A3B8; margin-bottom:12px;"></i>
+                    <h3 style="font-size:20px; font-weight:800; color:#0F172A; margin:0 0 6px 0;">No Students Found</h3>
+                    <p style="color:#64748B; font-size:14.5px; margin:0;">No student profiles match your search criteria or selected filters.</p>
+                </div>
+            {% endif %}
+
+        </div>
+    </main>
+
+</div>
+
+<script>
+function handleSmartBack(el) {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.history.back();
+    } else {
+        window.location.href = el.getAttribute('data-fallback') || '/';
+    }
+}
+</script>
+</body>
+</html>

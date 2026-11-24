@@ -1,0 +1,470 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Setup Wizard - Note2Know</title>
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #311B92 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 15px;
+            font-family: var(--font-main, 'Inter', system-ui, sans-serif);
+            color: #F8FAFC;
+        }
+
+        .setup-card {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            max-width: 650px;
+            width: 100%;
+            padding: 38px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+            animation: setupFadeIn 0.4s ease-out;
+        }
+
+        @keyframes setupFadeIn {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Progress Stepper Header */
+        .stepper-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .step-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748B;
+            transition: all 0.3s ease;
+        }
+
+        .step-pill.active {
+            color: #38BDF8;
+        }
+
+        .step-pill.completed {
+            color: #34D399;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .step-pill.active .step-num {
+            background: #2563EB;
+            border-color: #38BDF8;
+            color: #FFF;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .step-pill.completed .step-num {
+            background: #059669;
+            border-color: #34D399;
+            color: #FFF;
+        }
+
+        .stepper-divider {
+            flex: 1;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 14px;
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .brand-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 0 6px 0;
+            color: #F8FAFC;
+        }
+
+        .brand-header p {
+            font-size: 14px;
+            color: #94A3B8;
+            margin: 0;
+        }
+
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .dept-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 18px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            user-select: none;
+        }
+
+        .dept-card:hover {
+            border-color: #38BDF8;
+            background: rgba(56, 189, 248, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .dept-card.selected {
+            border-color: #3B82F6;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(67, 56, 202, 0.3) 100%);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.35);
+        }
+
+        .dept-icon {
+            font-size: 26px;
+            margin-bottom: 8px;
+            color: #38BDF8;
+        }
+
+        .dept-code {
+            font-size: 17px;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 2px;
+            color: #F8FAFC;
+        }
+
+        .dept-name {
+            font-size: 11px;
+            color: #94A3B8;
+            line-height: 1.2;
+            display: block;
+        }
+
+        .selected-dept-chip {
+            background: rgba(37, 99, 235, 0.2);
+            border: 1px solid #3B82F6;
+            border-radius: 14px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .year-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 520px) {
+            .year-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .year-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #CBD5E1;
+            user-select: none;
+        }
+
+        .year-card:hover:not(.disabled) {
+            border-color: #38BDF8;
+            color: #FFF;
+        }
+
+        .year-card.selected {
+            border-color: #3B82F6;
+            background: #2563EB;
+            color: #FFF;
+            box-shadow: 0 4px 18px rgba(37, 99, 235, 0.45);
+        }
+
+        .year-card.disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            border-color: transparent;
+            pointer-events: none;
+        }
+
+        .btn-action {
+            padding: 15px 24px;
+            border-radius: 16px;
+            border: none;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #2563EB 0%, #4338CA 100%);
+            color: #FFFFFF;
+            width: 100%;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-next:hover:not(:disabled) {
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #CBD5E1;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #FFF;
+        }
+
+        .alert-error-dark {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid #EF4444;
+            color: #FCA5A5;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="setup-card">
+
+    <!-- Stepper Header -->
+    <div class="stepper-header">
+        <div class="step-pill active" id="pill-step-1">
+            <div class="step-num">1</div>
+            <span>Select Department</span>
+        </div>
+        <div class="stepper-divider"></div>
+        <div class="step-pill" id="pill-step-2">
+            <div class="step-num">2</div>
+            <span>Select Academic Year</span>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-error-dark">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>{{ message }}</div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'student_setup' %}" id="onboarding-form">
+        {% csrf_token %}
+        <input type="hidden" name="department" id="input-dept-id" value="">
+        <input type="hidden" name="year" id="input-year-val" value="">
+
+        <!-- STEP 1 PANEL: DEPARTMENT SELECTION ONLY -->
+        <div id="panel-step-1">
+            <div class="brand-header">
+                <h1>Step 1: Choose Your Department</h1>
+                <p>Select the degree program or department you are studying</p>
+            </div>
+
+            <div class="dept-grid">
+                {% for dept in departments %}
+                    <div class="dept-card" id="dept-card-{{ dept.id }}" onclick="selectDept('{{ dept.id }}', '{{ dept.code }}', '{{ dept.name|escapejs }}', this)">
+                        <div class="dept-icon"><i class="{{ dept.icon|default:'fa-solid fa-laptop-code' }}"></i></div>
+                        <span class="dept-code">{{ dept.code }}</span>
+                        <span class="dept-name">{{ dept.name }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" id="btn-to-step-2" onclick="goToStep2()" class="btn-action btn-next" disabled>
+                Next: Select Academic Year <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- STEP 2 PANEL: ACADEMIC YEAR SELECTION ONLY -->
+        <div id="panel-step-2" style="display: none;">
+            <div class="brand-header">
+                <h1>Step 2: Choose Academic Year</h1>
+                <p>Select your current enrolled academic year</p>
+            </div>
+
+            <!-- Selected Department Chip -->
+            <div class="selected-dept-chip">
+                <div>
+                    <span style="color: #94A3B8; font-size: 12px; display: block;">Enrolled Department:</span>
+                    <strong id="chip-dept-text" style="color: #38BDF8; font-size: 15px;">BCA</strong>
+                </div>
+                <button type="button" onclick="goToStep1()" style="background: rgba(255,255,255,0.1); border: none; color: #FFF; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                    <i class="fa-solid fa-pen" style="margin-right: 4px;"></i> Change
+                </button>
+            </div>
+
+            <!-- Year Selection Cards -->
+            <div class="year-grid">
+                <div class="year-card" id="year-card-1" onclick="selectYear(1, this)">1st Year</div>
+                <div class="year-card" id="year-card-2" onclick="selectYear(2, this)">2nd Year</div>
+                <div class="year-card" id="year-card-3" onclick="selectYear(3, this)">3rd Year</div>
+                <div class="year-card" id="year-card-4" onclick="selectYear(4, this)">4th Year</div>
+            </div>
+
+            <p id="year-program-note" style="color: #38BDF8; font-size: 12.5px; text-align: center; margin-bottom: 24px;">
+                <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> Select your academic year to continue.
+            </p>
+
+            <div style="display: flex; gap: 12px;">
+                <button type="button" onclick="goToStep1()" class="btn-action btn-back" style="flex: 1;">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </button>
+                <button type="submit" id="btn-submit-setup" class="btn-action btn-next" style="flex: 2;" disabled>
+                    Complete Setup & Enter Portal <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    let selectedDeptId = null;
+    let selectedDeptCode = null;
+    let selectedDeptName = null;
+    let selectedYearVal = null;
+
+    function selectDept(id, code, name, element) {
+        document.querySelectorAll('.dept-card').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+
+        selectedDeptId = id;
+        selectedDeptCode = code;
+        selectedDeptName = name;
+        document.getElementById('input-dept-id').value = id;
+
+        document.getElementById('btn-to-step-2').disabled = false;
+    }
+
+    function goToStep2() {
+        if (!selectedDeptId) return;
+
+        document.getElementById('panel-step-1').style.display = 'none';
+        document.getElementById('panel-step-2').style.display = 'block';
+
+        // Update Stepper Header
+        document.getElementById('pill-step-1').classList.remove('active');
+        document.getElementById('pill-step-1').classList.add('completed');
+        document.getElementById('pill-step-2').classList.add('active');
+
+        // Update Selected Department Chip
+        document.getElementById('chip-dept-text').innerText = `${selectedDeptCode} - ${selectedDeptName}`;
+
+        // Configure Year Options based on selected department rules
+        const y3 = document.getElementById('year-card-3');
+        const y4 = document.getElementById('year-card-4');
+        const note = document.getElementById('year-program-note');
+
+        if (selectedDeptCode === 'MBA') {
+            // MBA = 2 Years (Years 3 & 4 disabled)
+            y3.classList.add('disabled');
+            y4.classList.add('disabled');
+            note.innerHTML = '<i class="fa-solid fa-graduation-cap"></i> <strong>MBA Program</strong> contains 2 Academic Years (Years 1 & 2 available).';
+        } else if (['BCA', 'BBA', 'B.Com'].includes(selectedDeptCode)) {
+            // BCA, BBA, B.Com = 3 Years (Year 4 disabled)
+            y3.classList.remove('disabled');
+            y4.classList.add('disabled');
+            note.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> <strong>${selectedDeptCode} Program</strong> contains 3 Academic Years (Years 1, 2, & 3 available).`;
+        } else {
+            // B.Tech / Engineering = 4 Years
+            y3.classList.remove('disabled');
+            y4.classList.remove('disabled');
+            note.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> <strong>${selectedDeptCode} Program</strong> contains 4 Academic Years (Years 1 to 4 available).`;
+        }
+
+        // Reset year selection if invalid for new department
+        if (selectedYearVal) {
+            if (selectedDeptCode === 'MBA' && selectedYearVal > 2) clearYearSelection();
+            if (['BCA', 'BBA', 'B.Com'].includes(selectedDeptCode) && selectedYearVal > 3) clearYearSelection();
+        }
+    }
+
+    function goToStep1() {
+        document.getElementById('panel-step-2').style.display = 'none';
+        document.getElementById('panel-step-1').style.display = 'block';
+
+        // Update Stepper Header
+        document.getElementById('pill-step-1').classList.remove('completed');
+        document.getElementById('pill-step-1').classList.add('active');
+        document.getElementById('pill-step-2').classList.remove('active');
+    }
+
+    function selectYear(val, element) {
+        if (element.classList.contains('disabled')) return;
+
+        document.querySelectorAll('.year-card').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+
+        selectedYearVal = val;
+        document.getElementById('input-year-val').value = val;
+        document.getElementById('btn-submit-setup').disabled = false;
+    }
+
+    function clearYearSelection() {
+        document.querySelectorAll('.year-card').forEach(el => el.classList.remove('selected'));
+        selectedYearVal = null;
+        document.getElementById('input-year-val').value = '';
+        document.getElementById('btn-submit-setup').disabled = true;
+    }
+</script>
+
+</body>
+</html>

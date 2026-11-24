@@ -46,6 +46,15 @@ media/
 *.swo
 .DS_Store
 
+# Static collected files
+staticfiles/
+
+# Temp / output
+tmp/
+output/
+inspect_*.png
+*.docx
+
 # Archives & Backups
 *.zip
 *.tar.gz

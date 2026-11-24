@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile | Note2Know</title>
-    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=11">
     <style>
         .profile-hero {
             background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
@@ -283,6 +283,8 @@
     <main class="content">
         <div class="container">
 
+            <button type="button" class="back-nav-arrow" data-fallback="{% url 'dashboard' %}" onclick="handleSmartBack(this)" title="Go Back"><i class="fa-solid fa-arrow-left"></i></button>
+
             {% if messages %}
                 <div style="margin-bottom: 25px;">
                     {% for message in messages %}
@@ -362,6 +364,7 @@
                                         <option value="1" {% if student_profile.year == 1 %}selected{% endif %}>1st Year</option>
                                         <option value="2" {% if student_profile.year == 2 %}selected{% endif %}>2nd Year</option>
                                         <option value="3" {% if student_profile.year == 3 %}selected{% endif %}>3rd Year</option>
+                                        <option value="4" {% if student_profile.year == 4 %}selected{% endif %}>4th Year</option>
                                     </select>
                                 </div>
                             {% endif %}
@@ -370,6 +373,64 @@
                                 <i class="fa-solid fa-floppy-disk" style="margin-right: 6px;"></i> Save Profile Changes
                             </button>
                         </form>
+                    </div>
+
+                    <!-- Face ID Security Card -->
+                    <div class="card-box" style="border-top: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h3 style="margin: 0;"><i class="fa-solid fa-face-smile" style="color: #2563EB; margin-right: 6px;"></i> Face ID Security</h3>
+                            {% if user_face.is_enrolled %}
+                                <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid #10B981;">
+                                    <i class="fa-solid fa-circle-check"></i> Enrolled & Active
+                                </span>
+                            {% else %}
+                                <span style="background: #FEF3C7; color: #92400E; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid #F59E0B;">
+                                    <i class="fa-solid fa-circle-exclamation"></i> Not Enrolled
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px;">
+                            Enable Face Recognition to instantly log in using your webcam without typing passwords.
+                        </p>
+
+                        <!-- Camera / Preview Box -->
+                        <div style="background: #0F172A; border-radius: 16px; overflow: hidden; position: relative; width: 100%; aspect-ratio: 4/3; max-height: 240px; display: flex; align-items: center; justify-content: center; border: 2px solid #334155; margin-bottom: 16px;">
+                            <video id="enroll-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; display: none; transform: scaleX(-1);"></video>
+                            <canvas id="enroll-canvas" style="display: none;"></canvas>
+
+                            {% if user_face.is_enrolled and user_face.face_image %}
+                                <img id="enroll-preview-img" src="{{ user_face.face_image.url }}" alt="Registered Face" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <div id="enroll-placeholder" style="text-align: center; color: #94A3B8;">
+                                    <i class="fa-solid fa-camera" style="font-size: 40px; margin-bottom: 8px; color: #64748B;"></i>
+                                    <p style="margin: 0; font-size: 13px;">Click <strong>Open Camera</strong> to register your face</p>
+                                </div>
+                            {% endif %}
+
+                            <!-- Face Oval Guide Overlay (Visible when camera active) -->
+                            <div id="enroll-face-oval" style="display: none; position: absolute; top: 12%; left: 25%; width: 50%; height: 76%; border: 3px dashed #38BDF8; border-radius: 50%; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4); pointer-events: none;"></div>
+                        </div>
+
+                        <!-- Status Alert Box -->
+                        <div id="enroll-status" style="display: none; margin-bottom: 14px; font-size: 13.5px; padding: 10px 14px; border-radius: 10px;"></div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" id="btn-start-enroll-cam" onclick="startEnrollCamera()" class="btn-submit" style="flex: 1; padding: 10px 14px; font-size: 13.5px; background: #2563EB;">
+                                <i class="fa-solid fa-video" style="margin-right: 5px;"></i> Open Camera
+                            </button>
+
+                            <button type="button" id="btn-capture-enroll" onclick="captureAndEnrollFace()" class="btn-submit" style="flex: 1; padding: 10px 14px; font-size: 13.5px; background: #059669; display: none;">
+                                <i class="fa-solid fa-camera" style="margin-right: 5px;"></i> Register Face
+                            </button>
+
+                            {% if user_face.is_enrolled %}
+                                <button type="button" onclick="deleteFaceProfile()" style="background: rgba(220, 38, 38, 0.15); color: #DC2626; border: 1px solid #DC2626; padding: 10px 14px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;">
+                                    <i class="fa-solid fa-trash" style="margin-right: 4px;"></i> Remove
+                                </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
@@ -447,9 +508,12 @@
                                                         {{ note.uploaded_at|date:"M d, Y" }}
                                                     </td>
                                                     <td>
-                                                        <a href="{% url 'delete_note' note.id %}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this note?')">
-                                                            <i class="fa-solid fa-trash" style="margin-right: 3px;"></i> Delete
-                                                        </a>
+                                                        <form method="POST" action="{% url 'delete_note' note.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this note?')">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn-delete">
+                                                                <i class="fa-solid fa-trash" style="margin-right: 3px;"></i> Delete
+                                                            </button>
+                                                        </form>
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -558,6 +622,130 @@ function filterProfileUnits() {
         opt.textContent = u.text;
         unitSelect.appendChild(opt);
     });
+}
+
+let enrollStream = null;
+
+async function startEnrollCamera() {
+    const video = document.getElementById('enroll-video');
+    const placeholder = document.getElementById('enroll-placeholder');
+    const previewImg = document.getElementById('enroll-preview-img');
+    const faceOval = document.getElementById('enroll-face-oval');
+    const btnStart = document.getElementById('btn-start-enroll-cam');
+    const btnCapture = document.getElementById('btn-capture-enroll');
+    const statusDiv = document.getElementById('enroll-status');
+
+    try {
+        enrollStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: "user" } });
+        video.srcObject = enrollStream;
+        video.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+        if (previewImg) previewImg.style.display = 'none';
+        faceOval.style.display = 'block';
+
+        btnStart.style.display = 'none';
+        btnCapture.style.display = 'flex';
+
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = '#EFF6FF';
+        statusDiv.style.color = '#1E40AF';
+        statusDiv.style.border = '1px solid #BFDBFE';
+        statusDiv.innerHTML = '<i class="fa-solid fa-face-viewfinder"></i> Position your face inside the oval guide and click <strong>Register Face</strong>.';
+    } catch (err) {
+        alert('Camera access denied or unavailable: ' + err.message);
+    }
+}
+
+async function captureAndEnrollFace() {
+    const video = document.getElementById('enroll-video');
+    const canvas = document.getElementById('enroll-canvas');
+    const statusDiv = document.getElementById('enroll-status');
+    const btnCapture = document.getElementById('btn-capture-enroll');
+
+    if (!video.srcObject) return;
+
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const base64Image = canvas.toDataURL('image/jpeg', 0.9);
+
+    statusDiv.style.display = 'block';
+    statusDiv.style.background = '#EFF6FF';
+    statusDiv.style.color = '#1E40AF';
+    statusDiv.style.border = '1px solid #BFDBFE';
+    statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing face detection and feature extraction...';
+
+    btnCapture.disabled = true;
+
+    try {
+        const formData = new FormData();
+        formData.append('image', base64Image);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        const response = await fetch('{% url "face_enroll_api" %}', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            statusDiv.style.background = '#D1FAE5';
+            statusDiv.style.color = '#065F46';
+            statusDiv.style.border = '1px solid #10B981';
+            statusDiv.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + data.message;
+
+            // Stop stream and reload page after 1.5s
+            if (enrollStream) {
+                enrollStream.getTracks().forEach(track => track.stop());
+            }
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            statusDiv.style.background = '#FEE2E2';
+            statusDiv.style.color = '#991B1B';
+            statusDiv.style.border = '1px solid #F87171';
+            statusDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + data.error;
+            btnCapture.disabled = false;
+        }
+    } catch (err) {
+        statusDiv.style.background = '#FEE2E2';
+        statusDiv.style.color = '#991B1B';
+        statusDiv.style.border = '1px solid #F87171';
+        statusDiv.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Request failed: ' + err.message;
+        btnCapture.disabled = false;
+    }
+}
+
+async function deleteFaceProfile() {
+    if (!confirm("Are you sure you want to remove your Face ID profile? You will need to re-register to use Face Login.")) return;
+
+    try {
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        const response = await fetch('{% url "face_delete_api" %}', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert("Error removing Face ID: " + data.error);
+        }
+    } catch (err) {
+        alert("Failed to remove Face ID: " + err.message);
+    }
+}
+function handleSmartBack(el) {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.history.back();
+    } else {
+        window.location.href = el.getAttribute('data-fallback') || '/';
+    }
 }
 </script>
 

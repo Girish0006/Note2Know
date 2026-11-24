@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Portal | Note2Know</title>
+    <title>Faculty ERP Dashboard | Note2Know</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=11">
     <style>
         .staff-hero {
             background: linear-gradient(135deg, #0F172A 0%, #1E293B 40%, #1E40AF 100%);
             color: white;
             padding: 32px 30px;
             border-radius: 24px;
-            box-shadow: 0 12px 30px rgba(30, 58, 138, 0.25);
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
             margin-bottom: 30px;
             display: flex;
             align-items: center;
@@ -30,7 +30,7 @@
             right: -10%;
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
         }
@@ -41,15 +41,15 @@
             z-index: 1;
         }
         .staff-avatar {
-            width: 80px;
-            height: 80px;
+            width: 76px;
+            height: 76px;
             border-radius: 50%;
             background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
             border: 3px solid rgba(255, 255, 255, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 38px;
+            font-size: 34px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             color: #FFFFFF;
         }
@@ -72,8 +72,8 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: 700;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #F8FAFC;
             display: inline-flex;
             align-items: center;
@@ -83,6 +83,72 @@
             background: #2563EB;
             border-color: #3B82F6;
         }
+        .erp-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .erp-kpi-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 22px 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .erp-kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.12);
+            border-color: #93C5FD;
+        }
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .kpi-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #FFFFFF;
+        }
+        .bg-blue { background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+        .bg-green { background: linear-gradient(135deg, #10B981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+        .bg-purple { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); box-shadow: 0 4px 12px rgba(139,92,246,0.3); }
+        .bg-amber { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+        .bg-rose { background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%); box-shadow: 0 4px 12px rgba(244,63,94,0.3); }
+        .bg-indigo { background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+        .bg-cyan { background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%); box-shadow: 0 4px 12px rgba(6,182,212,0.3); }
+
+        .kpi-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0F172A;
+            line-height: 1;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+        .kpi-label {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+        .kpi-subtext {
+            font-size: 12px;
+            color: #64748B;
+        }
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -90,16 +156,14 @@
             margin-bottom: 25px;
         }
         @media (max-width: 900px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
+            .grid-2 { grid-template-columns: 1fr; }
         }
         .card-box {
             background: #FFFFFF;
             border-radius: 20px;
             padding: 28px;
             border: 1px solid #E2E8F0;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, .04);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .03);
             margin-bottom: 25px;
         }
         .card-box h3 {
@@ -112,12 +176,8 @@
             gap: 10px;
             font-weight: 700;
         }
-        .card-box h3 i {
-            color: #2563EB;
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
+        .card-box h3 i { color: #2563EB; }
+        .form-group { margin-bottom: 18px; }
         .form-group label {
             display: block;
             font-weight: 600;
@@ -155,6 +215,7 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            text-decoration: none;
         }
         .btn-submit:hover {
             transform: translateY(-2px);
@@ -173,80 +234,29 @@
             align-items: center;
             gap: 6px;
             transition: all 0.2s ease;
+            text-decoration: none;
         }
         .btn-secondary:hover {
             background: #E2E8F0;
             color: #0F172A;
         }
-        .btn-danger {
-            background: #FEE2E2;
-            color: #DC2626;
-            border: 1px solid #FCA5A5;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12.5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-danger:hover {
-            background: #DC2626;
-            color: white;
-        }
-        .subject-chip {
-            background: #F8FAFC;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 14px;
-            padding: 16px 18px;
+        .breadcrumb-bar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            transition: all 0.2s ease;
-        }
-        .subject-chip:hover {
-            border-color: #3B82F6;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.04);
-            transform: translateY(-1px);
-        }
-        .notes-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .notes-table th, .notes-table td {
-            padding: 14px 16px;
-            text-align: left;
-            border-bottom: 1px solid #E2E8F0;
-            font-size: 14px;
-        }
-        .notes-table th {
-            background: #F8FAFC;
-            font-weight: 700;
-            color: #475569;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .alert-banner {
-            padding: 14px 20px;
-            border-radius: 14px;
+            gap: 8px;
+            font-size: 13.5px;
             font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            color: #64748B;
+            margin-bottom: 24px;
+            background: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
-        .alert-banner-error {
-            background: #FEF2F2;
-            color: #991B1B;
-            border: 1px solid #FCA5A5;
-        }
-        .alert-banner-success {
-            background: #F0FDF4;
-            color: #166534;
-            border: 1px solid #86EFAC;
+        .breadcrumb-bar a {
+            color: #2563EB;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -254,27 +264,35 @@
 
 <div class="layout">
 
+    <!-- Dark Navigation Sidebar -->
     <aside class="sidebar">
-
         <div class="brand">
-            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
-            <h2>Note2Know</h2>
+            <div class="logo-box"><i class="fa-solid fa-graduation-cap"></i></div>
+            <h2>Note2Know <small style="display:block; font-size:11px; color:#38BDF8; font-weight:700;">FACULTY ERP</small></h2>
         </div>
 
         <a href="{% url 'staff_dashboard' %}" class="menu active">
-            <i class="fa-solid fa-chalkboard-user"></i> Staff Portal
+            <i class="fa-solid fa-chart-pie"></i> ERP Dashboard
         </a>
 
-        <a href="{% url 'dashboard' %}" class="menu">
-            <i class="fa-solid fa-house"></i> Student View
+        <a href="{% url 'manage_students' %}" class="menu">
+            <i class="fa-solid fa-users-gear"></i> Manage Students
         </a>
 
-        <a href="{% url 'profile' %}" class="menu">
-            <i class="fa-solid fa-user"></i> My Profile
+        <a href="#handled-subjects-section" class="menu">
+            <i class="fa-solid fa-book-bookmark"></i> Handled Subjects
+        </a>
+
+        <a href="#upload-notes-section" class="menu">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Notes
         </a>
 
         <a href="{% url 'assistant' %}" class="menu">
-            <i class="fa-solid fa-robot"></i> AI Assistant
+            <i class="fa-solid fa-robot"></i> AI Study Assistant
+        </a>
+
+        <a href="{% url 'profile' %}" class="menu">
+            <i class="fa-solid fa-user-gear"></i> Account Settings
         </a>
 
         <a href="{% url 'logout' %}" class="menu" style="color: #EF4444; margin-top: auto;">
@@ -288,311 +306,322 @@
             {% if messages %}
                 <div style="margin-bottom: 25px;">
                     {% for message in messages %}
-                        <div class="alert-banner {% if message.tags == 'error' %}alert-banner-error{% else %}alert-banner-success{% endif %}">
-                            <i class="fa-solid {% if message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
-                            <span>{{ message }}</span>
+                        <div style="padding: 14px 20px; border-radius: 14px; background: rgba(153, 27, 27, 0.1); color: #DC2626; border: 1px solid #FCA5A5; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-circle-info"></i> {{ message }}
                         </div>
                     {% endfor %}
                 </div>
             {% endif %}
 
-            <!-- Staff Banner -->
+            <!-- Breadcrumb Navigation -->
+            <nav class="breadcrumb-bar">
+                <a href="{% url 'staff_dashboard' %}"><i class="fa-solid fa-house" style="margin-right: 4px;"></i> Dashboard</a>
+                <span style="color: #94A3B8;"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></span>
+                <span style="color: #0F172A; font-weight: 700;">Faculty ERP Portal</span>
+            </nav>
+
+            <!-- Faculty Hero Banner -->
             <div class="staff-hero">
                 <div class="staff-avatar-box">
                     <div class="staff-avatar">
                         <i class="fa-solid fa-user-tie"></i>
                     </div>
                     <div class="staff-details">
-                        <h1>Welcome, {{ request.user.get_full_name|default:request.user.username }}</h1>
+                        <h1>Welcome, {{ request.user.first_name|default:request.user.username }}</h1>
                         <p>
-                            <span class="badge-tag"><i class="fa-solid fa-id-badge"></i> ID: {{ request.user.username }}</span>
-                            <span class="badge-tag"><i class="fa-solid fa-briefcase"></i> {{ staff_profile.designation }}</span>
+                            <span><i class="fa-solid fa-briefcase" style="color: #38BDF8;"></i> {{ staff_profile.designation|default:"Faculty Member" }}</span>
                             {% if staff_profile.department %}
-                                <span class="badge-tag badge-dept"><i class="fa-solid fa-building"></i> {{ staff_profile.department.code }} - {{ staff_profile.department.name }}</span>
+                                <span class="badge-tag badge-dept"><i class="fa-solid fa-building"></i> {{ staff_profile.department.name }} ({{ staff_profile.department.code }})</span>
                             {% else %}
-                                <span class="badge-tag" style="background:#E2E8F0; color:#475569;"><i class="fa-solid fa-triangle-exclamation"></i> Department Not Selected</span>
+                                <span class="badge-tag" style="background: rgba(245, 158, 11, 0.2); border-color: #F59E0B; color: #FCD34D;">Department Not Assigned</span>
                             {% endif %}
                         </p>
                     </div>
                 </div>
+                <div style="z-index:1; display:flex; gap:12px; flex-wrap:wrap;">
+                    <a href="{% url 'manage_students' %}" class="btn-submit" style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);">
+                        <i class="fa-solid fa-users"></i> Manage Students ERP
+                    </a>
+                </div>
             </div>
 
-            <!-- Main Layout Grid -->
+            <!-- 8 KPI Cards Section -->
+            <h2 style="font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 18px; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-chart-line" style="color:#2563EB;"></i> Faculty Performance & Student Analytics
+            </h2>
+
+            <div class="erp-kpi-grid">
+                <!-- 1. Total Assigned Students -->
+                <div class="erp-kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label">Assigned Students</div>
+                        <div class="kpi-icon bg-blue"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                    <div class="kpi-number">{{ total_assigned_students }}</div>
+                    <div class="kpi-subtext">Students in assigned department</div>
+                </div>
+
+                <!-- 2. Active Students Today -->
+                <div class="erp-kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label">Active Today</div>
+                        <div class="kpi-icon bg-green"><i class="fa-solid fa-user-check"></i></div>
+                    </div>
+                    <div class="kpi-number">{{ active_students_today }}</div>
+                    <div class="kpi-subtext">LoggedIn within 24 hours</div>
+                </div>
+
+                <!-- 3. Average Student Progress -->
+                <div class="erp-kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label">Average Progress</div>
+                        <div class="kpi-icon bg-purple"><i class="fa-solid fa-chart-pie"></i></div>
+                    </div>
+                    <div class="kpi-number">{{ avg_student_progress }}%</div>
+                    <div class="kpi-subtext">Curriculum completion rate</div>
+                </div>
+
+                <!-- 4. Total Notes Uploaded -->
+                <div class="erp-kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label">Notes Uploaded</div>
+                        <div class="kpi-icon bg-amber"><i class="fa-solid fa-file-pdf"></i></div>
+                    </div>
+                    <div class="kpi-number">{{ total_notes_uploaded }}</div>
+                    <div class="kpi-subtext">Lecture PDFs uploaded</div>
+                </div>
+
+                <!-- 5. Total Quizzes Created -->
+                <div class="erp-kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label">Quizzes Active</div>
+                        <div class="kpi-icon bg-cyan"><i class="fa-solid fa-file-circle-question"></i></div>
+                    </div>
+                    <div class="kpi-number">{{ total_quizzes_created }}</div>
+                    <div class="kpi-subtext">Unit assessment modules</div>
+                </div>
+
+                <!-- 6. Average Quiz Score -->
+                <div class="erp-kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label">Avg Quiz Score</div>
+                        <div class="kpi-icon bg-indigo"><i class="fa-solid fa-trophy"></i></div>
+                    </div>
+                    <div class="kpi-number">{{ avg_quiz_score_pct }}%</div>
+                    <div class="kpi-subtext">Across student quiz attempts</div>
+                </div>
+
+                <!-- 7. Students Below 40% -->
+                <div class="erp-kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label">Students Below 40%</div>
+                        <div class="kpi-icon bg-rose"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    </div>
+                    <div class="kpi-number">{{ students_below_40_count }}</div>
+                    <div class="kpi-subtext">Require academic coaching</div>
+                </div>
+
+                <!-- 8. Pending Assignments -->
+                <div class="erp-kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label">Active Announcements</div>
+                        <div class="kpi-icon bg-blue"><i class="fa-solid fa-bell"></i></div>
+                    </div>
+                    <div class="kpi-number">{{ pending_assignments_count }}</div>
+                    <div class="kpi-subtext">Sent reminders & alerts</div>
+                </div>
+            </div>
+
+            <!-- Two-Column Grid: Profile Update & Add Handled Subject -->
             <div class="grid-2">
 
-                <!-- 1. Staff Profile & Department Selection Card -->
+                <!-- Faculty Profile Card -->
                 <div class="card-box">
-                    <h3><i class="fa-solid fa-user-gear"></i> Faculty Profile & Department</h3>
-                    <p style="color:#64748B; font-size:13.5px; margin-top:-10px; margin-bottom:20px;">
-                        Update your professional credentials and select the primary department you belong to.
-                    </p>
-
-                    <form method="POST" action="{% url 'staff_dashboard' %}">
+                    <h3><i class="fa-solid fa-id-card"></i> Update Faculty Profile</h3>
+                    <form method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="update_profile">
-
                         <div class="form-group">
-                            <label><i class="fa-solid fa-building" style="color:#2563EB;"></i> Select Your Department *</label>
-                            <select name="department" class="form-control" required style="font-weight: 600; color: #0F172A;">
-                                <option value="">-- Choose Department --</option>
+                            <label>First Name</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ request.user.first_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ request.user.last_name }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" class="form-control" value="{{ request.user.email }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Designation</label>
+                            <input type="text" name="designation" class="form-control" value="{{ staff_profile.designation }}" placeholder="e.g. Assistant Professor">
+                        </div>
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select name="department" class="form-control">
+                                <option value="">-- Select Primary Department --</option>
                                 {% for dept in departments %}
-                                    <option value="{{ dept.id }}" {% if staff_profile.department_id == dept.id %}selected{% endif %}>
+                                    <option value="{{ dept.id }}" {% if staff_profile.department and staff_profile.department.id == dept.id %}selected{% endif %}>
                                         {{ dept.code }} - {{ dept.name }}
                                     </option>
                                 {% endfor %}
                             </select>
                         </div>
-
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-                            <div class="form-group">
-                                <label>First Name</label>
-                                <input type="text" name="first_name" class="form-control" value="{{ request.user.first_name }}">
-                            </div>
-                            <div class="form-group">
-                                <label>Last Name</label>
-                                <input type="text" name="last_name" class="form-control" value="{{ request.user.last_name }}">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Designation / Title</label>
-                            <input type="text" name="designation" class="form-control" placeholder="e.g. Assistant Professor, HOD" value="{{ staff_profile.designation }}">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Official Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ request.user.email }}" placeholder="faculty@college.edu">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Contact Phone (Optional)</label>
-                            <input type="text" name="phone" class="form-control" value="{{ staff_profile.phone }}" placeholder="+91 XXXXX XXXXX">
-                        </div>
-
-                        <button type="submit" class="btn-submit" style="width: 100%; justify-content: center; margin-top: 10px;">
-                            <i class="fa-solid fa-floppy-disk"></i> Save Profile & Department
+                        <button type="submit" class="btn-submit">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Profile Details
                         </button>
                     </form>
                 </div>
 
-                <!-- 2. Handled Subjects Management Card -->
-                <div class="card-box">
-                    <h3><i class="fa-solid fa-book-bookmark"></i> Subjects Handled by You</h3>
-                    <p style="color:#64748B; font-size:13.5px; margin-top:-10px; margin-bottom:20px;">
-                        Select or enter subjects you teach in your department to upload notes for students.
-                    </p>
+                <!-- Add / Claim Handled Subject -->
+                <div class="card-box" id="handled-subjects-section">
+                    <h3><i class="fa-solid fa-book-open"></i> Assign Handled Subject</h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_handled_subject">
 
-                    <!-- Currently Handled Subjects List -->
-                    {% if handled_subjects %}
-                        <div style="margin-bottom: 24px;">
-                            <label style="font-weight:700; font-size:13px; color:#475569; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:10px;">
-                                Currently Assigned Subjects ({{ handled_subjects|length }})
-                            </label>
-                            {% for subj in handled_subjects %}
-                                <div class="subject-chip">
-                                    <div>
-                                        <div style="font-weight:700; font-size:15px; color:#0F172A;">
-                                            <span style="color:#2563EB;">[{{ subj.code }}]</span> {{ subj.name }}
-                                        </div>
-                                        <div style="font-size:12.5px; color:#64748B; margin-top:3px;">
-                                            <i class="fa-solid fa-building"></i> {{ subj.department.code|default:"General" }} &bull; {{ subj.get_year_display }} &bull; {{ subj.get_semester_display }}
-                                        </div>
-                                    </div>
-                                    <form method="POST" action="{% url 'staff_dashboard' %}" style="margin:0;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="remove_handled_subject">
-                                        <input type="hidden" name="subject_id" value="{{ subj.id }}">
-                                        <button type="submit" class="btn-danger" onclick="return confirm('Remove {{ subj.name }} from your handled list?')">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            {% endfor %}
+                        <div class="form-group">
+                            <label>Select Unassigned Subject in Department</label>
+                            <select name="existing_subject_id" class="form-control">
+                                <option value="">-- Select Existing Subject --</option>
+                                {% for subj in available_dept_subjects %}
+                                    <option value="{{ subj.id }}">
+                                        [{{ subj.department.code|default:"GEN" }}] {{ subj.code }} - {{ subj.name }} (Sem {{ subj.semester }})
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
-                    {% else %}
-                        <div style="text-align:center; padding:20px; background:#F8FAFC; border-radius:14px; border:1px dashed #CBD5E1; margin-bottom:20px;">
-                            <i class="fa-solid fa-book" style="font-size:30px; color:#94A3B8; margin-bottom:8px;"></i>
-                            <p style="margin:0; font-weight:600; color:#64748B; font-size:14px;">No subjects assigned yet.</p>
-                            <small style="color:#94A3B8;">Select an existing department subject below or enter a new one.</small>
+
+                        <div style="text-align: center; font-weight: 700; color: #94A3B8; margin: 15px 0;">— OR CREATE NEW SUBJECT —</div>
+
+                        <div class="form-group">
+                            <label>New Subject Name</label>
+                            <input type="text" name="subject_name" class="form-control" placeholder="e.g. Advanced Operating Systems">
                         </div>
-                    {% endif %}
 
-                    <hr style="border:none; border-top:1px solid #E2E8F0; margin:20px 0;">
-
-                    <!-- Option A: Claim Existing Subject in Department -->
-                    {% if available_dept_subjects %}
-                        <form method="POST" action="{% url 'staff_dashboard' %}" style="margin-bottom:20px;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="add_handled_subject">
-                            <label style="font-weight:700; font-size:13.5px; color:#0F172A; display:block; margin-bottom:8px;">
-                                <i class="fa-solid fa-link" style="color:#2563EB;"></i> Select Existing Department Subject
-                            </label>
-                            <div style="display:flex; gap:10px;">
-                                <select name="existing_subject_id" class="form-control" required style="flex:1;">
-                                    <option value="">-- Choose Subject to Handle --</option>
-                                    {% for subj in available_dept_subjects %}
-                                        <option value="{{ subj.id }}">
-                                            [{{ subj.code }}] {{ subj.name }} ({{ subj.department.code }} - {{ subj.get_year_display }})
-                                        </option>
-                                    {% endfor %}
+                        <div style="display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Subject Code</label>
+                                <input type="text" name="subject_code" class="form-control" placeholder="e.g. BCA301">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Academic Year</label>
+                                <select name="subject_year" class="form-control">
+                                    <option value="1">1st Year</option>
+                                    <option value="2" selected>2nd Year</option>
+                                    <option value="3">3rd Year</option>
                                 </select>
-                                <button type="submit" class="btn-secondary" style="white-space:nowrap;">
-                                    <i class="fa-solid fa-plus"></i> Assign
-                                </button>
                             </div>
-                        </form>
-                    {% endif %}
-
-                    <!-- Option B: Add New Subject Handled by Staff -->
-                    <div>
-                        <div style="font-weight:700; font-size:13.5px; color:#0F172A; margin-bottom:10px;">
-                            <i class="fa-solid fa-square-plus" style="color:#2563EB;"></i> Or Create & Assign New Subject
                         </div>
-                        <form method="POST" action="{% url 'staff_dashboard' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="add_handled_subject">
 
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                                <input type="text" name="subject_code" class="form-control" placeholder="Subject Code (e.g. BCA105)" required>
-                                <input type="text" name="subject_name" class="form-control" placeholder="Subject Name (e.g. Operating Systems)" required>
+                        <div style="display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Semester</label>
+                                <select name="subject_sem" class="form-control">
+                                    <option value="1">Semester I</option>
+                                    <option value="2">Semester II</option>
+                                    <option value="3" selected>Semester III</option>
+                                    <option value="4">Semester IV</option>
+                                    <option value="5">Semester V</option>
+                                    <option value="6">Semester VI</option>
+                                </select>
                             </div>
-
-                            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:12px;">
-                                <select name="subject_type" class="form-control" title="Subject Type">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Type</label>
+                                <select name="subject_type" class="form-control">
                                     <option value="theory">Theory Subject</option>
                                     <option value="lab">Practical Lab</option>
                                 </select>
-
-                                <select name="subject_department" class="form-control">
-                                    {% for dept in departments %}
-                                        <option value="{{ dept.id }}" {% if staff_profile.department_id == dept.id %}selected{% endif %}>{{ dept.code }}</option>
-                                    {% endfor %}
-                                </select>
-
-                                <select name="subject_year" class="form-control">
-                                    <option value="1">1st Year</option>
-                                    <option value="2">2nd Year</option>
-                                    <option value="3">3rd Year</option>
-                                    <option value="4">4th Year</option>
-                                </select>
-
-                                <select name="subject_sem" class="form-control">
-                                    <option value="1">Sem 1</option>
-                                    <option value="2">Sem 2</option>
-                                    <option value="3">Sem 3</option>
-                                    <option value="4">Sem 4</option>
-                                    <option value="5">Sem 5</option>
-                                    <option value="6">Sem 6</option>
-                                    <option value="7">Sem 7</option>
-                                    <option value="8">Sem 8</option>
-                                </select>
                             </div>
+                        </div>
 
-                            <button type="submit" class="btn-submit" style="width:100%; justify-content:center;">
-                                <i class="fa-solid fa-plus-circle"></i> Create & Assign New Subject
-                            </button>
-                        </form>
-                    </div>
+                        <button type="submit" class="btn-submit">
+                            <i class="fa-solid fa-plus-circle"></i> Add Subject to My Curriculum
+                        </button>
+                    </form>
                 </div>
 
             </div>
 
-            <!-- 3. Upload Subject Notes Card -->
-            <div class="card-box">
-                <h3><i class="fa-solid fa-file-arrow-up"></i> Upload Lecture Notes for Handled Subject</h3>
-                <p style="color:#64748B; font-size:13.5px; margin-top:-10px; margin-bottom:20px;">
-                    Upload PDF study notes, syllabus material, or lecture slides for students taking your subjects.
-                </p>
-
-                {% if handled_subjects %}
-                    <form method="POST" action="{% url 'staff_dashboard' %}" enctype="multipart/form-data" style="margin-bottom: 30px;">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="upload_note">
-
-                        <div style="display:grid; grid-template-columns: 1fr 1fr 1.5fr 1fr auto; gap:12px; align-items:end;">
-                            <div>
-                                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Handled Subject</label>
-                                <select id="note-subject-select" class="form-control" required onchange="filterUnits()">
-                                    <option value="">-- Select Subject --</option>
-                                    {% for subj in handled_subjects %}
-                                        <option value="{{ subj.id }}">{{ subj.code }} - {{ subj.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Unit / Module (5 Units)</label>
-                                <select name="unit" id="note-unit-select" class="form-control" required disabled>
-                                    <option value="">-- Select Subject First --</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Note Title / Topic</label>
-                                <input type="text" name="title" class="form-control" placeholder="e.g. Unit 1 Complete Lecture Notes" required>
-                            </div>
-
-                            <div>
-                                <label style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">PDF File</label>
-                                <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx,.ppt,.pptx" required style="padding: 9px 10px;">
-                            </div>
-
-                            <div>
-                                <button type="submit" class="btn-submit" style="white-space:nowrap; padding: 12px 20px;">
-                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                {% else %}
-                    <div style="padding:15px; background:#EFF6FF; border-left:4px solid #2563EB; border-radius:8px; margin-bottom:25px;">
-                        <p style="margin:0; font-size:13.5px; color:#1E40AF; font-weight:600;">
-                            <i class="fa-solid fa-circle-info"></i> Please assign or create a subject in the section above before uploading notes.
-                        </p>
+            <!-- Upload Notes Section -->
+            <div class="card-box" id="upload-notes-section">
+                <h3><i class="fa-solid fa-cloud-arrow-up"></i> Upload Unit Lecture Notes (PDF)</h3>
+                <form method="POST" enctype="multipart/form-data" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="upload_note">
+                    
+                    <div style="flex: 1; min-width: 220px;">
+                        <label class="form-group" style="margin:0;">
+                            <span style="font-weight:600; font-size:13.5px; color:#334155; margin-bottom:6px; display:block;">Select Course Unit</span>
+                            <select name="unit" class="form-control" required>
+                                <option value="">-- Select Handled Unit --</option>
+                                {% for unit in handled_units %}
+                                    <option value="{{ unit.id }}">
+                                        [{{ unit.subject.code }}] Unit {{ unit.unit_number }}: {{ unit.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </label>
                     </div>
-                {% endif %}
 
-                <!-- Uploaded Notes Table -->
-                <h4 style="font-size:16px; color:#0F172A; font-weight:700; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-folder-open" style="color:#2563EB;"></i> Your Uploaded Lecture Notes ({{ uploaded_notes|length }})
-                </h4>
+                    <div style="flex: 1; min-width: 220px;">
+                        <label class="form-group" style="margin:0;">
+                            <span style="font-weight:600; font-size:13.5px; color:#334155; margin-bottom:6px; display:block;">Note Title</span>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Unit 2 Complete Lecture Notes" required>
+                        </label>
+                    </div>
 
+                    <div style="flex: 1; min-width: 220px;">
+                        <label class="form-group" style="margin:0;">
+                            <span style="font-weight:600; font-size:13.5px; color:#334155; margin-bottom:6px; display:block;">Attach PDF Document</span>
+                            <input type="file" name="file" accept=".pdf" class="form-control" required>
+                        </label>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn-submit" style="height: 46px;">
+                            <i class="fa-solid fa-upload"></i> Upload PDF Note
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Uploaded Notes Table -->
+            <div class="card-box">
+                <h3><i class="fa-solid fa-folder-open"></i> Uploaded Lecture Notes History</h3>
                 {% if uploaded_notes %}
-                    <div style="overflow-x:auto;">
-                        <table class="notes-table">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
                             <thead>
-                                <tr>
-                                    <th>Subject & Dept</th>
-                                    <th>Unit</th>
-                                    <th>Note Title</th>
-                                    <th>Uploaded Date</th>
-                                    <th>File Link</th>
-                                    <th>Action</th>
+                                <tr style="border-bottom: 2px solid #E2E8F0; color: #64748B;">
+                                    <th style="padding: 12px;">Title</th>
+                                    <th style="padding: 12px;">Subject & Unit</th>
+                                    <th style="padding: 12px;">Date Uploaded</th>
+                                    <th style="padding: 12px; text-align: right;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for note in uploaded_notes %}
-                                    <tr>
-                                        <td>
-                                            <span style="font-weight:700; color:#2563EB;">[{{ note.unit.subject.code }}]</span>
-                                            {{ note.unit.subject.name }}
-                                            <br>
-                                            <small style="color:#64748B;">{{ note.unit.subject.department.code|default:"General" }}</small>
+                                    <tr style="border-bottom: 1px solid #F1F5F9;">
+                                        <td style="padding: 14px 12px; font-weight: 700; color: #0F172A;">
+                                            <i class="fa-solid fa-file-pdf" style="color: #EF4444; margin-right: 8px;"></i>{{ note.title }}
                                         </td>
-                                        <td>Unit {{ note.unit.unit_number }}</td>
-                                        <td style="font-weight:600; color:#0F172A;">{{ note.title }}</td>
-                                        <td style="color:#64748B; font-size:13px;">{{ note.uploaded_at|date:"M d, Y" }}</td>
-                                        <td>
-                                            <a href="{{ note.file.url }}" target="_blank" class="btn-secondary" style="padding:5px 10px; font-size:12px;">
-                                                <i class="fa-solid fa-file-pdf" style="color:#DC2626;"></i> View File
+                                        <td style="padding: 14px 12px; color: #334155;">
+                                            [{{ note.unit.subject.code }}] Unit {{ note.unit.unit_number }}
+                                        </td>
+                                        <td style="padding: 14px 12px; color: #64748B;">
+                                            {{ note.uploaded_at|date:"d M Y, h:i A" }}
+                                        </td>
+                                        <td style="padding: 14px 12px; text-align: right;">
+                                            <a href="{{ note.file.url }}" target="_blank" class="btn-secondary" style="margin-right: 8px;">
+                                                <i class="fa-solid fa-eye"></i> View
                                             </a>
-                                        </td>
-                                        <td>
-                                            <form method="POST" action="{% url 'staff_dashboard' %}" style="margin:0;">
+                                            <form method="POST" style="display: inline-block;">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="delete_note">
                                                 <input type="hidden" name="note_id" value="{{ note.id }}">
-                                                <button type="submit" class="btn-danger" onclick="return confirm('Delete note {{ note.title }}?')">
+                                                <button type="submit" class="btn-secondary" style="color: #EF4444; border-color: #FCA5A5;" onclick="return confirm('Are you sure you want to delete this note?')">
                                                     <i class="fa-solid fa-trash"></i> Delete
                                                 </button>
                                             </form>
@@ -603,74 +632,14 @@
                         </table>
                     </div>
                 {% else %}
-                    <div style="text-align:center; padding:30px; background:#F8FAFC; border-radius:14px; color:#64748B;">
-                        <i class="fa-solid fa-file-pdf" style="font-size:36px; color:#CBD5E1; margin-bottom:10px;"></i>
-                        <p style="margin:0; font-weight:600;">No lecture notes uploaded yet.</p>
-                        <small>Use the form above to upload study notes for your students.</small>
-                    </div>
+                    <p style="color: #64748B; margin: 0;">No lecture notes uploaded yet. Use the form above to upload PDFs for your assigned course units.</p>
                 {% endif %}
-
             </div>
 
         </div>
     </main>
 
 </div>
-
-<script id="handled-units-json" type="application/json">
-[
-    {% for unit in handled_units %}
-        {"id": {{ unit.id }}, "subjectId": {{ unit.subject.id }}, "text": "Unit {{ unit.unit_number }}: {{ unit.title|escapejs }}"}{% if not forloop.last %},{% endif %}
-    {% endfor %}
-]
-</script>
-
-<script>
-    function filterUnits() {
-        const subjectSelect = document.getElementById('note-subject-select');
-        const unitSelect = document.getElementById('note-unit-select');
-        const selectedSubjectId = subjectSelect ? subjectSelect.value : "";
-        if (!unitSelect) return;
-
-        unitSelect.innerHTML = "";
-
-        if (!selectedSubjectId) {
-            const opt = document.createElement('option');
-            opt.value = "";
-            opt.textContent = "-- Select Subject First --";
-            unitSelect.appendChild(opt);
-            unitSelect.disabled = true;
-            return;
-        }
-
-        const dataEl = document.getElementById('handled-units-json');
-        let unitsList = [];
-        if (dataEl) {
-            try { unitsList = JSON.parse(dataEl.textContent); } catch(e) {}
-        }
-
-        unitSelect.disabled = false;
-        const defaultOpt = document.createElement('option');
-        defaultOpt.value = "";
-        defaultOpt.textContent = "-- Select Unit (1 to 5) --";
-        unitSelect.appendChild(defaultOpt);
-
-        const filtered = unitsList.filter(u => String(u.subjectId) === String(selectedSubjectId));
-        if (filtered.length === 0) {
-            const opt = document.createElement('option');
-            opt.value = "";
-            opt.textContent = "No units found for this subject";
-            unitSelect.appendChild(opt);
-        } else {
-            filtered.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.id;
-                opt.textContent = u.text;
-                unitSelect.appendChild(opt);
-            });
-        }
-    }
-</script>
 
 </body>
 </html>

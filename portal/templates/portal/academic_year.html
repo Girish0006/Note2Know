@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Year | Note2Know LMS</title>
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=11">
+    <style>
+        .breadcrumb-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 24px;
+            background: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .breadcrumb-bar a {
+            color: #2563EB;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb-bar a:hover {
+            color: #1D4ED8;
+            text-decoration: underline;
+        }
+        .breadcrumb-separator {
+            color: #94A3B8;
+            font-size: 11px;
+        }
+        .year-hero {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 28px 32px;
+            margin-bottom: 30px;
+            color: #FFFFFF;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+        }
+        .sem-card-apple {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 26px;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            position: relative;
+        }
+        .sem-card-apple:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.12);
+            border-color: #93C5FD;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
+            <h2>Note2Know</h2>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="menu">
+            <i class="fa-solid fa-house"></i> Dashboard
+        </a>
+
+        <a href="{% url 'academic_year' %}" class="menu active">
+            <i class="fa-solid fa-graduation-cap"></i> My Program
+        </a>
+
+        {% if is_staff_user %}
+            <a href="{% url 'staff_dashboard' %}" class="menu" style="background: rgba(37, 99, 235, 0.15); color: #3B82F6; font-weight: 700;">
+                <i class="fa-solid fa-chalkboard-user"></i> Staff Portal
+            </a>
+        {% endif %}
+
+        <a href="{% url 'assistant' %}" class="menu">
+            <i class="fa-solid fa-robot"></i> AI Assistant
+        </a>
+
+        <a href="{% url 'progress' %}" class="menu">
+            <i class="fa-solid fa-chart-line"></i> Progress
+        </a>
+
+        <a href="{% url 'profile' %}" class="menu">
+            <i class="fa-solid fa-user"></i> My Profile
+        </a>
+
+        <a href="{% url 'logout' %}" class="menu" style="color: #EF4444; margin-top: auto;">
+            <i class="fa-solid fa-right-from-bracket" style="color: #EF4444;"></i> Log Out
+        </a>
+    </aside>
+
+    <main class="content">
+        <div class="container">
+
+            <button type="button" class="back-nav-arrow" data-fallback="{% url 'dashboard' %}" onclick="handleSmartBack(this)" title="Go Back"><i class="fa-solid fa-arrow-left"></i></button>
+
+            {% if messages %}
+                <div style="margin-bottom: 25px;">
+                    {% for message in messages %}
+                        <div style="padding: 14px 20px; border-radius: 14px; background: rgba(153, 27, 27, 0.3); color: #FCA5A5; border: 1px solid #DC2626; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Breadcrumb Navigation -->
+            <nav class="breadcrumb-bar">
+                <a href="{% url 'dashboard' %}"><i class="fa-solid fa-house" style="margin-right: 4px;"></i> Dashboard</a>
+                <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <a href="{% url 'academic_year' %}">{{ department.code }}</a>
+                <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <span style="color: #0F172A; font-weight: 700;">{{ year_label }}</span>
+            </nav>
+
+            <div class="year-hero">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <span style="font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #38BDF8; display: block; margin-bottom: 4px;">ENROLLED ACADEMIC YEAR</span>
+                        <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 6px 0; color: #F8FAFC;">{{ department.name }} ({{ department.code }})</h1>
+                        <p style="margin: 0; font-size: 14.5px; color: #94A3B8;"><i class="fa-solid fa-calendar-check" style="color: #38BDF8; margin-right: 5px;"></i> Current Enrolled Year: <strong style="color: #F8FAFC;">{{ year_label }}</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h2 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;"><i class="fa-solid fa-calendar-days" style="color: #2563EB; margin-right: 6px;"></i> Academic Semesters</h2>
+                <p style="color: #64748B; font-size: 14px; margin: 0;">Select a semester below to view assigned subjects.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                {% for sem in semesters %}
+                    <div class="sem-card-apple">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span style="background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; padding: 6px 14px; border-radius: 12px; font-size: 12.5px; font-weight: 800;">
+                                <i class="fa-solid fa-graduation-cap" style="margin-right: 4px;"></i> {{ sem.label }}
+                            </span>
+                            <span style="background: #F1F5F9; color: #475569; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 600;">
+                                {{ sem.subjects_count }} Subjects
+                            </span>
+                        </div>
+
+                        <div style="width: 52px; height: 52px; border-radius: 16px; background: #DBEAFE; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #2563EB; margin-bottom: 14px;">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </div>
+
+                        <h3 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">{{ sem.label }}</h3>
+                        <p style="font-size: 13.5px; color: #64748B; margin: 0 0 20px 0;">Curriculum modules & core subjects assigned for {{ sem.label }}.</p>
+
+                        <a href="{% url 'semester_detail' sem.number %}" class="button" style="width: 100%; text-align: center; justify-content: center;">
+                            Open {{ sem.label }} Subjects <i class="fa-solid fa-arrow-right" style="margin-left: 6px;"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </main>
+
+<script>
+function handleSmartBack(el) {
+    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+        window.history.back();
+    } else {
+        window.location.href = el.getAttribute('data-fallback') || '/';
+    }
+}
+</script>
+</body>
+</html>

@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
+# pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
+# pyrefly: ignore [missing-import]
 from openai import OpenAI
 
 BASE_DIR = Path(__file__).resolve().parent
