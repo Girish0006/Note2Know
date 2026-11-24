@@ -306,10 +306,13 @@
                         <p><i class="fa-solid fa-envelope" style="margin-right: 6px;"></i>{{ request.user.email|default:"No email address added" }}</p>
                     </div>
                 </div>
-                <div>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                     <span class="role-badge">
                         {% if is_staff %}<i class="fa-solid fa-chalkboard-user" style="margin-right: 4px;"></i> Faculty / Staff Profile{% else %}<i class="fa-solid fa-user-graduate" style="margin-right: 4px;"></i> Student Profile{% endif %}
                     </span>
+                    <button type="button" onclick="enableProfileEditMode()" style="background: #FFFFFF; color: #1E40AF; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s;">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+                    </button>
                 </div>
             </div>
 
@@ -318,61 +321,201 @@
 
                 <!-- Left Column: Personal Info & Edit Form -->
                 <div>
-                    <div class="card-box">
-                        <h3><i class="fa-solid fa-gear" style="color: #2563EB; margin-right: 6px;"></i> Personal Information</h3>
+                    <!-- Personal Info Card (View Mode & Edit Mode) -->
+                    <div class="card-box" id="profile-card-container">
 
-                        <form method="POST" action="{% url 'profile' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="update_profile">
-
-                            <div class="form-group">
-                                <label for="username">Username</label>
-                                <input type="text" class="form-control" id="username" value="{{ request.user.username }}" disabled style="opacity: 0.7; cursor: not-allowed;">
+                        <!-- VIEW MODE (DEFAULT) -->
+                        <div id="profile-view-mode">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="margin: 0;"><i class="fa-solid fa-user-check" style="color: #2563EB; margin-right: 6px;"></i> Personal Information</h3>
+                                <button type="button" onclick="enableProfileEditMode()" style="background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; padding: 6px 14px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                                </button>
                             </div>
 
-                            <div class="form-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" class="form-control" name="first_name" id="first_name" value="{{ request.user.first_name }}">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="last_name">Last Name</label>
-                                <input type="text" class="form-control" name="last_name" id="last_name" value="{{ request.user.last_name }}">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" class="form-control" name="email" id="email" value="{{ request.user.email }}">
-                            </div>
-
-                            {% if not is_staff %}
-                                <div class="form-group">
-                                    <label for="department">Enrolled Department</label>
-                                    <select class="form-control" name="department" id="department">
-                                        <option value="">-- Select Department --</option>
-                                        {% for dept in departments %}
-                                            <option value="{{ dept.id }}" {% if student_profile.department_id == dept.id %}selected{% endif %}>
-                                                {{ dept.code }} - {{ dept.name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                    <span style="font-size: 13px; font-weight: 700; color: #64748B;">Username / College ID</span>
+                                    <span style="font-size: 13.5px; font-weight: 700; color: #0F172A;">{{ request.user.username }}</span>
                                 </div>
 
-                                <div class="form-group">
-                                    <label for="year">Academic Year</label>
-                                    <select class="form-control" name="year" id="year">
-                                        <option value="1" {% if student_profile.year == 1 %}selected{% endif %}>1st Year</option>
-                                        <option value="2" {% if student_profile.year == 2 %}selected{% endif %}>2nd Year</option>
-                                        <option value="3" {% if student_profile.year == 3 %}selected{% endif %}>3rd Year</option>
-                                        <option value="4" {% if student_profile.year == 4 %}selected{% endif %}>4th Year</option>
-                                    </select>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                    <span style="font-size: 13px; font-weight: 700; color: #64748B;">Full Name</span>
+                                    <span style="font-size: 13.5px; font-weight: 700; color: #0F172A;">{{ request.user.get_full_name|default:"Not specified" }}</span>
                                 </div>
-                            {% endif %}
 
-                            <button type="submit" class="btn-submit" style="width: 100%; justify-content: center; margin-top: 10px;">
-                                <i class="fa-solid fa-floppy-disk" style="margin-right: 6px;"></i> Save Profile Changes
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                    <span style="font-size: 13px; font-weight: 700; color: #64748B;">Email Address</span>
+                                    <span style="font-size: 13.5px; font-weight: 600; color: #2563EB;">{{ request.user.email|default:"Not specified" }}</span>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                    <span style="font-size: 13px; font-weight: 700; color: #64748B;">Phone Number</span>
+                                    <span style="font-size: 13.5px; font-weight: 600; color: #0F172A;">
+                                        {% if not is_staff %}
+                                            {{ student_profile.phone|default:"Not specified" }}
+                                        {% else %}
+                                            {{ staff_profile.phone|default:"Not specified" }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                {% if not is_staff %}
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #64748B;">University Roll / USN</span>
+                                        <span style="font-size: 13.5px; font-weight: 700; color: #0F172A;">{{ student_profile.usn|default:"Not assigned" }}</span>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #64748B;">Program & Department</span>
+                                        <span style="font-size: 13.5px; font-weight: 700; color: #1E40AF;">
+                                            {% if student_profile.department %}
+                                                {{ student_profile.department.code }} - {{ student_profile.department.name }}
+                                            {% else %}
+                                                Not Selected
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #64748B;">Academic Year</span>
+                                        <span style="font-size: 13.5px; font-weight: 700; color: #059669;">
+                                            {{ student_profile.get_year_display|default:"1st Year" }}
+                                        </span>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #64748B;">Section</span>
+                                        <span style="font-size: 13.5px; font-weight: 700; color: #0F172A;">Section {{ student_profile.section|default:"A" }}</span>
+                                    </div>
+                                {% else %}
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #64748B;">Designation</span>
+                                        <span style="font-size: 13.5px; font-weight: 700; color: #0F172A;">{{ staff_profile.designation|default:"Faculty Member" }}</span>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                        <span style="font-size: 13px; font-weight: 700; color: #64748B;">Department</span>
+                                        <span style="font-size: 13.5px; font-weight: 700; color: #1E40AF;">
+                                            {% if staff_profile.department %}
+                                                {{ staff_profile.department.code }} - {{ staff_profile.department.name }}
+                                            {% else %}
+                                                General / All Departments
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <button type="button" onclick="enableProfileEditMode()" class="button" style="width: 100%; justify-content: center; margin-top: 18px; padding: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit Profile Details
                             </button>
-                        </form>
+                        </div>
+
+                        <!-- EDIT MODE (FORM) -->
+                        <div id="profile-edit-mode" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="margin: 0;"><i class="fa-solid fa-user-pen" style="color: #2563EB; margin-right: 6px;"></i> Edit Profile</h3>
+                                <button type="button" onclick="disableProfileEditMode()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 6px 12px; border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fa-solid fa-xmark"></i> Cancel
+                                </button>
+                            </div>
+
+                            <form method="POST" action="{% url 'profile' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_profile">
+
+                                <div class="form-group">
+                                    <label for="username">Username / College ID</label>
+                                    <input type="text" class="form-control" id="username" value="{{ request.user.username }}" disabled style="opacity: 0.7; cursor: not-allowed; background: #F1F5F9;">
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="form-group">
+                                        <label for="first_name">First Name</label>
+                                        <input type="text" class="form-control" name="first_name" id="first_name" value="{{ request.user.first_name }}" placeholder="First name">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="last_name">Last Name</label>
+                                        <input type="text" class="form-control" name="last_name" id="last_name" value="{{ request.user.last_name }}" placeholder="Last name">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" class="form-control" name="email" id="email" value="{{ request.user.email }}" placeholder="student@note2know.edu">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="text" class="form-control" name="phone" id="phone" value="{% if not is_staff %}{{ student_profile.phone|default:'' }}{% else %}{{ staff_profile.phone|default:'' }}{% endif %}" placeholder="+91 98765 43210">
+                                </div>
+
+                                {% if not is_staff %}
+                                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px;">
+                                        <div class="form-group">
+                                            <label for="usn">University Roll / USN</label>
+                                            <input type="text" class="form-control" name="usn" id="usn" value="{{ student_profile.usn|default:'' }}" placeholder="e.g. 1MS22BCA001">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="section">Section</label>
+                                            <input type="text" class="form-control" name="section" id="section" value="{{ student_profile.section|default:'A' }}" placeholder="e.g. A, B">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="department">Enrolled Department</label>
+                                        <select class="form-control" name="department" id="department">
+                                            <option value="">-- Select Department --</option>
+                                            {% for dept in departments %}
+                                                <option value="{{ dept.id }}" {% if student_profile.department_id == dept.id %}selected{% endif %}>
+                                                    {{ dept.code }} - {{ dept.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="year">Academic Year</label>
+                                        <select class="form-control" name="year" id="year">
+                                            <option value="1" {% if student_profile.year == 1 %}selected{% endif %}>1st Year</option>
+                                            <option value="2" {% if student_profile.year == 2 %}selected{% endif %}>2nd Year</option>
+                                            <option value="3" {% if student_profile.year == 3 %}selected{% endif %}>3rd Year</option>
+                                            <option value="4" {% if student_profile.year == 4 %}selected{% endif %}>4th Year</option>
+                                        </select>
+                                    </div>
+                                {% else %}
+                                    <div class="form-group">
+                                        <label for="designation">Designation</label>
+                                        <input type="text" class="form-control" name="designation" id="designation" value="{{ staff_profile.designation|default:'Faculty Member' }}" placeholder="e.g. Assistant Professor, HOD">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="department">Assigned Department</label>
+                                        <select class="form-control" name="department" id="department">
+                                            <option value="">-- All Departments / General --</option>
+                                            {% for dept in departments %}
+                                                <option value="{{ dept.id }}" {% if staff_profile.department_id == dept.id %}selected{% endif %}>
+                                                    {{ dept.code }} - {{ dept.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endif %}
+
+                                <div style="display: flex; gap: 10px; margin-top: 18px;">
+                                    <button type="submit" class="button" style="flex: 1; justify-content: center; padding: 12px; font-weight: 700; background: #059669; border-color: #059669; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+                                    </button>
+                                    <button type="button" onclick="disableProfileEditMode()" class="button-secondary" style="padding: 12px 18px; font-weight: 700; background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; border-radius: 12px; cursor: pointer;">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
                     </div>
 
                     <!-- Face ID Security Card -->
@@ -740,6 +883,27 @@ async function deleteFaceProfile() {
         alert("Failed to remove Face ID: " + err.message);
     }
 }
+function enableProfileEditMode() {
+    const viewMode = document.getElementById('profile-view-mode');
+    const editMode = document.getElementById('profile-edit-mode');
+    if (viewMode && editMode) {
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+        const firstNameInput = document.getElementById('first_name');
+        if (firstNameInput) firstNameInput.focus();
+        editMode.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+function disableProfileEditMode() {
+    const viewMode = document.getElementById('profile-view-mode');
+    const editMode = document.getElementById('profile-edit-mode');
+    if (viewMode && editMode) {
+        editMode.style.display = 'none';
+        viewMode.style.display = 'block';
+    }
+}
+
 function handleSmartBack(el) {
     if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
         window.history.back();

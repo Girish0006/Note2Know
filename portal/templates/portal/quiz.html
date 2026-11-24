@@ -4,121 +4,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ unit.title }} Quiz</title>
-
+    <title>{{ unit.title }} Quiz | Note2Know</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'portal/style.css' %}?v=11">
+    <style>
+        .quiz-option-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 18px;
+            border: 1px solid #CBD5E1;
+            border-radius: 12px;
+            background: #FFFFFF;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14.5px;
+            font-weight: 600;
+            color: #334155;
+            user-select: none;
+        }
+        .quiz-option-label:hover {
+            border-color: #3B82F6;
+            background: #F8FAFC;
+            transform: translateX(3px);
+        }
+        .quiz-option-label:has(input[type="radio"]:checked) {
+            border-color: #2563EB;
+            background: #EFF6FF;
+            color: #1E40AF;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+        }
+        .quiz-option-label input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: #2563EB;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
 <div class="layout">
 
     <aside class="sidebar">
-
         <div class="brand">
-            <div class="logo-box"><i class="fa-solid fa-cube"></i></div>
+            <div class="logo-box"><i class="fa-solid fa-book-bookmark"></i></div>
             <h2>Note2Know</h2>
         </div>
 
         <a href="{% url 'dashboard' %}" class="menu"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="{% url 'academic_year' %}" class="menu"><i class="fa-solid fa-graduation-cap"></i> My Program</a>
         <a href="{% url 'assistant' %}" class="menu"><i class="fa-solid fa-robot"></i> AI Assistant</a>
         <a href="{% url 'progress' %}" class="menu"><i class="fa-solid fa-chart-line"></i> Progress</a>
+        <a href="{% url 'profile' %}" class="menu"><i class="fa-solid fa-user"></i> My Profile</a>
+        <a href="{% url 'logout' %}" class="menu" style="color: #EF4444; margin-top: auto;">
+            <i class="fa-solid fa-right-from-bracket" style="color: #EF4444;"></i> Log Out
+        </a>
     </aside>
 
     <main class="content">
 
         <div class="container">
 
-            <button type="button" class="back-nav-arrow" data-fallback="{% url 'dashboard' %}" onclick="handleSmartBack(this)" title="Go Back"><i class="fa-solid fa-arrow-left"></i></button>
+            <button type="button" class="back-nav-arrow" data-fallback="{% url 'unit_detail' unit.id %}" onclick="handleSmartBack(this)" title="Go Back"><i class="fa-solid fa-arrow-left"></i></button>
 
             <div class="welcome-card">
-
-                <h1>{{ unit.title }}</h1>
-
-                <p>Answer all questions and submit your quiz.</p>
-
+                <span style="font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #38BDF8; display: block; margin-bottom: 4px;">UNIT ASSESSMENT</span>
+                <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 6px 0; color: #FFFFFF;">{{ unit.subject.name }}</h1>
+                <p style="margin: 0; font-size: 14.5px; color: #94A3B8;">Unit {{ unit.unit_number }}: <strong style="color: #F8FAFC;">{{ unit.title }}</strong></p>
             </div>
 
             <br>
 
             {% if submitted %}
 
-            <div class="welcome-card">
+            <div class="welcome-card" style="text-align: center; padding: 36px 24px;">
 
-                <h1><i class="fa-solid fa-trophy" style="color: var(--yellow-primary); margin-right: 8px;"></i> Quiz Completed</h1>
+                <div style="font-size: 52px; margin-bottom: 12px; color: #F59E0B;">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
 
-                <h2>{{ score }} / {{ questions|length }}</h2>
+                <h1 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 800; color: #FFFFFF;">Quiz Completed!</h1>
 
-                <br>
+                <div style="font-size: 44px; font-weight: 800; color: #38BDF8; margin: 12px 0 6px 0;">
+                    {{ score }} / {{ questions|length }}
+                </div>
 
-                <a class="button" href="{% url 'progress' %}">
-                    View Progress
-                </a>
+                <div style="font-size: 16px; font-weight: 700; color: #94A3B8; margin-bottom: 24px;">
+                    Score: {{ percentage|default:"0" }}%
+                    {% if percentage >= 80 %}
+                        <span style="color: #10B981; margin-left: 8px;">🎉 Outstanding!</span>
+                    {% elif percentage >= 50 %}
+                        <span style="color: #F59E0B; margin-left: 8px;">👍 Good Job!</span>
+                    {% else %}
+                        <span style="color: #EF4444; margin-left: 8px;">💡 Keep Practicing!</span>
+                    {% endif %}
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <a class="button" href="{% url 'unit_quiz' unit.id %}" style="display: inline-flex; align-items: center; gap: 6px; padding: 12px 22px;">
+                        <i class="fa-solid fa-rotate-right"></i> Retake Quiz
+                    </a>
+                    <a class="button" href="{% url 'progress' %}" style="display: inline-flex; align-items: center; gap: 6px; background: #2563EB; padding: 12px 22px;">
+                        <i class="fa-solid fa-chart-line"></i> View Progress
+                    </a>
+                    <a class="button" href="{% url 'unit_detail' unit.id %}" style="display: inline-flex; align-items: center; gap: 6px; background: #334155; padding: 12px 22px;">
+                        <i class="fa-solid fa-book-open"></i> Back to Notes
+                    </a>
+                </div>
 
             </div>
+
+            <br>
+
+            {% if results %}
+            <!-- Detailed Question Review -->
+            <div style="margin-bottom: 20px;">
+                <h2 style="font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">
+                    <i class="fa-solid fa-square-check" style="color: #2563EB; margin-right: 6px;"></i> Quiz Review & Correct Answers
+                </h2>
+                <p style="color: #64748B; font-size: 14px; margin: 0;">Review your answers below to reinforce your knowledge.</p>
+            </div>
+
+            {% for item in results %}
+                <div class="subject-card" style="border-left: 5px solid {% if item.is_correct %}#10B981{% else %}#EF4444{% endif %}; margin-bottom: 16px; border-radius: 16px; padding: 22px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0F172A;">Question {{ forloop.counter }}</h3>
+                        {% if item.is_correct %}
+                            <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 700;">
+                                <i class="fa-solid fa-check"></i> Correct (+1)
+                            </span>
+                        {% else %}
+                            <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 700;">
+                                <i class="fa-solid fa-xmark"></i> Incorrect (0)
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <p style="font-size: 15px; font-weight: 700; color: #0F172A; margin: 8px 0 14px 0; line-height: 1.5;">{{ item.question.question_text }}</p>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+                        <div style="padding: 10px 14px; border-radius: 10px; border: 1px solid {% if item.question.correct_answer == 'A' %}#10B981{% elif item.selected == 'A' %}#EF4444{% else %}#E2E8F0{% endif %}; background: {% if item.question.correct_answer == 'A' %}#ECFDF5{% elif item.selected == 'A' %}#FEF2F2{% else %}#FFFFFF{% endif %}; font-weight: {% if item.question.correct_answer == 'A' or item.selected == 'A' %}700{% else %}500{% endif %};">
+                            <strong>A)</strong> {{ item.question.option_a }}
+                            {% if item.question.correct_answer == 'A' %}<span style="color: #059669; font-weight: 800; margin-left: 8px; font-size: 12px;"><i class="fa-solid fa-check"></i> (Correct Answer)</span>{% endif %}
+                            {% if item.selected == 'A' and not item.is_correct %}<span style="color: #DC2626; font-weight: 800; margin-left: 8px; font-size: 12px;"><i class="fa-solid fa-xmark"></i> (Your Choice)</span>{% endif %}
+                        </div>
+
+                        <div style="padding: 10px 14px; border-radius: 10px; border: 1px solid {% if item.question.correct_answer == 'B' %}#10B981{% elif item.selected == 'B' %}#EF4444{% else %}#E2E8F0{% endif %}; background: {% if item.question.correct_answer == 'B' %}#ECFDF5{% elif item.selected == 'B' %}#FEF2F2{% else %}#FFFFFF{% endif %}; font-weight: {% if item.question.correct_answer == 'B' or item.selected == 'B' %}700{% else %}500{% endif %};">
+                            <strong>B)</strong> {{ item.question.option_b }}
+                            {% if item.question.correct_answer == 'B' %}<span style="color: #059669; font-weight: 800; margin-left: 8px; font-size: 12px;"><i class="fa-solid fa-check"></i> (Correct Answer)</span>{% endif %}
+                            {% if item.selected == 'B' and not item.is_correct %}<span style="color: #DC2626; font-weight: 800; margin-left: 8px; font-size: 12px;"><i class="fa-solid fa-xmark"></i> (Your Choice)</span>{% endif %}
+                        </div>
+
+                        <div style="padding: 10px 14px; border-radius: 10px; border: 1px solid {% if item.question.correct_answer == 'C' %}#10B981{% elif item.selected == 'C' %}#EF4444{% else %}#E2E8F0{% endif %}; background: {% if item.question.correct_answer == 'C' %}#ECFDF5{% elif item.selected == 'C' %}#FEF2F2{% else %}#FFFFFF{% endif %}; font-weight: {% if item.question.correct_answer == 'C' or item.selected == 'C' %}700{% else %}500{% endif %};">
+                            <strong>C)</strong> {{ item.question.option_c }}
+                            {% if item.question.correct_answer == 'C' %}<span style="color: #059669; font-weight: 800; margin-left: 8px; font-size: 12px;"><i class="fa-solid fa-check"></i> (Correct Answer)</span>{% endif %}
+                            {% if item.selected == 'C' and not item.is_correct %}<span style="color: #DC2626; font-weight: 800; margin-left: 8px; font-size: 12px;"><i class="fa-solid fa-xmark"></i> (Your Choice)</span>{% endif %}
+                        </div>
+
+                        <div style="padding: 10px 14px; border-radius: 10px; border: 1px solid {% if item.question.correct_answer == 'D' %}#10B981{% elif item.selected == 'D' %}#EF4444{% else %}#E2E8F0{% endif %}; background: {% if item.question.correct_answer == 'D' %}#ECFDF5{% elif item.selected == 'D' %}#FEF2F2{% else %}#FFFFFF{% endif %}; font-weight: {% if item.question.correct_answer == 'D' or item.selected == 'D' %}700{% else %}500{% endif %};">
+                            <strong>D)</strong> {{ item.question.option_d }}
+                            {% if item.question.correct_answer == 'D' %}<span style="color: #059669; font-weight: 800; margin-left: 8px; font-size: 12px;"><i class="fa-solid fa-check"></i> (Correct Answer)</span>{% endif %}
+                            {% if item.selected == 'D' and not item.is_correct %}<span style="color: #DC2626; font-weight: 800; margin-left: 8px; font-size: 12px;"><i class="fa-solid fa-xmark"></i> (Your Choice)</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% endif %}
 
             {% else %}
 
             <form method="POST">
-
                 {% csrf_token %}
 
                 {% for question in questions %}
+                <div class="subject-card" style="margin-bottom: 20px; border-radius: 18px; padding: 24px;">
 
-                <div class="subject-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; padding: 4px 12px; border-radius: 10px; font-size: 12px; font-weight: 800;">
+                            Question {{ forloop.counter }} of {{ questions|length }}
+                        </span>
+                    </div>
 
-                    <h3>
-                        Question {{ forloop.counter }}
-                    </h3>
+                    <p style="font-size: 16px; font-weight: 700; color: #0F172A; margin: 10px 0 16px 0; line-height: 1.5;">
+                        {{ question.question_text }}
+                    </p>
 
-                    <p>{{ question.question_text }}</p>
+                    <hr style="border: 0; border-top: 1px solid #E2E8F0; margin-bottom: 16px;">
 
-                    <hr><br>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label class="quiz-option-label">
+                            <input type="radio" name="question_{{ question.id }}" value="A" required>
+                            <span><strong>A)</strong> {{ question.option_a }}</span>
+                        </label>
 
-                    <label>
-                        <input type="radio"
-                               name="question_{{ question.id }}"
-                               value="A">
-                        {{ question.option_a }}
-                    </label>
+                        <label class="quiz-option-label">
+                            <input type="radio" name="question_{{ question.id }}" value="B">
+                            <span><strong>B)</strong> {{ question.option_b }}</span>
+                        </label>
 
-                    <br><br>
+                        <label class="quiz-option-label">
+                            <input type="radio" name="question_{{ question.id }}" value="C">
+                            <span><strong>C)</strong> {{ question.option_c }}</span>
+                        </label>
 
-                    <label>
-                        <input type="radio"
-                               name="question_{{ question.id }}"
-                               value="B">
-                        {{ question.option_b }}
-                    </label>
-
-                    <br><br>
-
-                    <label>
-                        <input type="radio"
-                               name="question_{{ question.id }}"
-                               value="C">
-                        {{ question.option_c }}
-                    </label>
-
-                    <br><br>
-
-                    <label>
-                        <input type="radio"
-                               name="question_{{ question.id }}"
-                               value="D">
-                        {{ question.option_d }}
-                    </label>
+                        <label class="quiz-option-label">
+                            <input type="radio" name="question_{{ question.id }}" value="D">
+                            <span><strong>D)</strong> {{ question.option_d }}</span>
+                        </label>
+                    </div>
 
                 </div>
-
-                <br>
-
                 {% endfor %}
 
-                <button class="button" type="submit">
-
-                    Submit Quiz
-
-                </button>
+                <div style="margin-top: 24px; text-align: center;">
+                    <button class="button" type="submit" style="padding: 14px 40px; font-size: 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                        <span>Submit Quiz</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
 
             </form>
 

@@ -1,6 +1,5 @@
 """
 Django settings for note2know project.
-Vercel + local development compatible.
 """
 
 import os
@@ -19,18 +18,11 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get(
-    'ALLOWED_HOSTS',
-    '127.0.0.1,localhost,.vercel.app'
-).split(',')
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    h.strip() for h in
-    os.environ.get(
-        'CSRF_TRUSTED_ORIGINS',
-        'http://127.0.0.1,https://*.vercel.app'
-    ).split(',')
-    if h.strip()
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
 ]
 
 # ── Application definition ───────────────────────────────────────────────────
@@ -75,14 +67,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'note2know.wsgi.application'
 
 # ── Database ──────────────────────────────────────────────────────────────────
-# On Vercel: use /tmp (writable). Locally: use project root db.sqlite3
-_IS_VERCEL = os.environ.get('VERCEL', False)
-_DB_PATH = '/tmp/db.sqlite3' if _IS_VERCEL else str(BASE_DIR / 'db.sqlite3')
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': _DB_PATH,
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -104,7 +92,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'portal' / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -112,5 +99,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ── External API Keys ────────────────────────────────────────────────────────
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '') or os.environ.get('GOOGLE_API_KEY', '')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')

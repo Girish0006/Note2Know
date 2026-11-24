@@ -175,9 +175,14 @@
             <div class="unit-hero">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
                     <div>
-                        <span style="font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #38BDF8; display: block; margin-bottom: 4px;">LECTURE NOTES</span>
+                        <span style="font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #38BDF8; display: block; margin-bottom: 4px;">LECTURE NOTES & ASSESSMENT</span>
                         <h1 style="font-size: 24px; font-weight: 800; margin: 0 0 6px 0; color: #F8FAFC;">{{ subject.name }}</h1>
                         <p style="margin: 0; font-size: 14.5px; color: #94A3B8;">Unit {{ unit.unit_number }}: <strong style="color: #F8FAFC;">{{ unit.title }}</strong></p>
+                    </div>
+                    <div>
+                        <a href="{% url 'unit_quiz' unit.id %}" style="background: linear-gradient(135deg, #2563EB, #1D4ED8); color: #FFFFFF; padding: 12px 22px; border-radius: 14px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4); transition: all 0.2s;">
+                            <i class="fa-solid fa-file-pen"></i> Take Unit Quiz
+                        </a>
                     </div>
                 </div>
             </div>
